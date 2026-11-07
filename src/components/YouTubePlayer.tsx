@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { LofiTrack, LoopMode } from '../types/lofi';
 import { AlertCircle, ExternalLink, Eye, EyeOff, Repeat, Zap } from 'lucide-react';
-import { getYouTubeThumbnail } from '../services/youtube';
+import { getYouTubeThumbnail, getSavedProgress, saveProgress, clearProgress } from '../services/youtube';
 
 declare global {
   interface Window {
@@ -94,6 +94,11 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
     } else if (state === 2) {
       onPlayStateChangeRef.current(false);
     } else if (state === 0) {
+      // Clear saved progress on completion so replay starts fresh
+      if (currentVideoIdRef.current) {
+        clearProgress(currentVideoIdRef.current);
+      }
+
       if (loopModeRef.current === 'single') {
         if (playerRef.current && typeof playerRef.current.seekTo === 'function') {
           playerRef.current.seekTo(0, true);
@@ -122,6 +127,8 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
   useEffect(() => {
     if (!isApiReady || !currentTrack || !currentTrack.youtubeId) return;
 
+    const resumeSeconds = getSavedProgress(currentTrack.youtubeId);
+
     if (!playerRef.current) {
       currentVideoIdRef.current = currentTrack.youtubeId;
       playerRef.current = new window.YT.Player(containerId, {
@@ -134,12 +141,20 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
           rel: 0,
           modestbranding: 1,
           playsinline: 1,
+          start: resumeSeconds > 0 ? Math.floor(resumeSeconds) : 0,
           origin: window.location.origin,
         },
         events: {
           onReady: (e: any) => {
             const player = e.target;
             player.setVolume(isMuted ? 0 : volume);
+            if (resumeSeconds > 0) {
+              try {
+                player.seekTo(resumeSeconds, true);
+              } catch {
+                // ignore
+              }
+            }
             if (isPlaying) {
               player.playVideo();
             }
@@ -152,16 +167,40 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
       currentVideoIdRef.current = currentTrack.youtubeId;
       setHasPlaybackError(null);
       try {
-        playerRef.current.loadVideoById(currentTrack.youtubeId);
+        if (resumeSeconds > 0) {
+          playerRef.current.loadVideoById({
+            videoId: currentTrack.youtubeId,
+            startSeconds: resumeSeconds,
+          });
+        } else {
+          playerRef.current.loadVideoById(currentTrack.youtubeId);
+        }
       } catch (err) {
         console.error('Error loading video by ID:', err);
       }
     }
   }, [isApiReady, currentTrack?.youtubeId, handleStateChange, handleError]);
 
-  // Clean destruction on unmount to prevent memory leaks
+  // Clean destruction on unmount & save current progress on exit
   useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (playerRef.current && typeof playerRef.current.getCurrentTime === 'function' && currentVideoIdRef.current) {
+        try {
+          const curr = playerRef.current.getCurrentTime();
+          if (curr > 3) {
+            saveProgress(currentVideoIdRef.current, curr);
+          }
+        } catch {
+          // ignore
+        }
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     return () => {
+      handleBeforeUnload();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       if (playerRef.current && typeof playerRef.current.destroy === 'function') {
         try {
           playerRef.current.destroy();
@@ -183,7 +222,7 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
         playerRef.current.pauseVideo();
       }
     } catch {
-      // ignore
+      // player might still be initializing
     }
   }, [isPlaying]);
 
@@ -207,6 +246,9 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
     if (seekTime !== null && playerRef.current && typeof playerRef.current.seekTo === 'function') {
       try {
         playerRef.current.seekTo(seekTime, true);
+        if (currentVideoIdRef.current) {
+          saveProgress(currentVideoIdRef.current, seekTime);
+        }
         onSeekHandled();
       } catch {
         // ignore
@@ -214,8 +256,7 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
     }
   }, [seekTime, onSeekHandled]);
 
-  // High-Efficiency Visibility-Aware Progress Polling:
-  // Zero CPU polling when paused or when tab is in background!
+  // High-Efficiency Visibility-Aware Progress Polling & Position Auto-Saving
   useEffect(() => {
     const updateProgress = () => {
       if (playerRef.current && typeof playerRef.current.getCurrentTime === 'function') {
@@ -223,6 +264,11 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
           const current = playerRef.current.getCurrentTime() || 0;
           const dur = playerRef.current.getDuration() || 0;
           onTimeUpdateRef.current(current, dur);
+
+          // Save playback position so user resumes right here on next visit
+          if (currentVideoIdRef.current && current > 2) {
+            saveProgress(currentVideoIdRef.current, current);
+          }
         } catch {
           // ignore
         }
@@ -231,7 +277,6 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
 
     const startTimer = () => {
       if (intervalRef.current) window.clearInterval(intervalRef.current);
-      // Only poll if video is actively playing AND tab is currently visible
       if (isPlaying && !document.hidden) {
         updateProgress();
         intervalRef.current = window.setInterval(updateProgress, 600);
@@ -247,10 +292,8 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        // Tab is hidden: sleep the interval to eliminate background CPU/RAM churn!
         stopTimer();
       } else {
-        // Tab returned to focus: immediately sample once, then resume timer if playing
         startTimer();
       }
     };

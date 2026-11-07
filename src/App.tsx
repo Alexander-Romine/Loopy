@@ -47,9 +47,36 @@ export default function App() {
     return [];
   });
 
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(() => {
+    try {
+      const savedId = localStorage.getItem('loopy_active_track_id');
+      const savedList = localStorage.getItem('loopy_user_playlist');
+      if (savedId && savedList) {
+        const parsed = JSON.parse(savedList);
+        if (Array.isArray(parsed)) {
+          const idx = parsed.findIndex((t: LofiTrack) => t.id === savedId);
+          if (idx !== -1) return idx;
+        }
+      }
+    } catch {
+      // fallback
+    }
+    return 0;
+  });
+
   const [isPlaying, setIsPlaying] = useState(true);
-  const [loopMode, setLoopMode] = useState<LoopMode>('single');
+
+  // Restore saved loop mode (Loop This vs Loop All)
+  const [loopMode, setLoopMode] = useState<LoopMode>(() => {
+    try {
+      const saved = localStorage.getItem('loopy_loop_mode');
+      if (saved === 'single' || saved === 'all') return saved;
+    } catch {
+      // fallback
+    }
+    return 'single';
+  });
+
   const [volume, setVolume] = useState(85);
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoHidden, setIsVideoHidden] = useState<boolean>(() => {
@@ -58,6 +85,15 @@ export default function App() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [seekTime, setSeekTime] = useState<number | null>(null);
+
+  // Persist loop mode choice
+  useEffect(() => {
+    try {
+      localStorage.setItem('loopy_loop_mode', loopMode);
+    } catch {
+      // ignore
+    }
+  }, [loopMode]);
 
   // Persist tracks
   useEffect(() => {
@@ -92,6 +128,17 @@ export default function App() {
     if (!tracks.length) return null;
     return tracks[currentTrackIndex] || tracks[0] || null;
   }, [tracks, currentTrackIndex]);
+
+  // Persist active track ID so the user returns to this exact video next time
+  useEffect(() => {
+    if (currentTrack?.id) {
+      try {
+        localStorage.setItem('loopy_active_track_id', currentTrack.id);
+      } catch {
+        // ignore
+      }
+    }
+  }, [currentTrack?.id]);
 
   // Next track logic
   const handleNextTrack = useCallback(() => {

@@ -1,0 +1,6 @@
+{
+  "name": "LoLoop - YouTube Lo-Fi Looper & Focus Station",
+  "description": "Add YouTube videos, loop them infinitely or continuously in custom playlists, with cozy visual backdrops and ambient sound layers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

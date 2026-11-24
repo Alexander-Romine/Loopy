@@ -70,26 +70,26 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
   };
 
   return (
-    <div className="w-full bg-[#0f0921]/85 border border-purple-500/20 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-[0_8px_32px_rgba(10,5,25,0.6)] backdrop-blur-xl">
+    <div className="w-full bg-[#111114] border border-zinc-800 rounded-lg p-3 sm:px-4 sm:py-3">
       {/* 1. Slim Timeline / Scrub Bar */}
       <div className="mb-2">
         <div
           onClick={handleProgressBarClick}
-          className={`group relative w-full h-1.5 hover:h-2 bg-purple-950/60 rounded-full transition-all border border-purple-900/30 ${
+          className={`group relative w-full h-1.5 hover:h-2 bg-zinc-800 rounded-sm transition-all ${
             hasTrack ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'
           }`}
         >
           <div
-            className="h-full bg-gradient-to-r from-purple-600 via-purple-400 to-fuchsia-300 rounded-full relative shadow-[0_0_10px_rgba(168,85,247,0.5)]"
+            className="h-full bg-blue-500 rounded-sm relative"
             style={{ width: `${progressPercent}%` }}
           >
             {hasTrack && (
-              <div className="opacity-0 group-hover:opacity-100 absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-[0_0_8px_#c084fc] transition-opacity" />
+              <div className="opacity-0 group-hover:opacity-100 absolute right-0 top-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-white rounded-sm transition-opacity" />
             )}
           </div>
         </div>
 
-        <div className="flex justify-between items-center text-[11px] font-mono text-purple-300/70 mt-1 tabular-nums">
+        <div className="flex justify-between items-center text-[11px] font-mono text-zinc-400 mt-1 tabular-nums">
           <span>{hasTrack ? formatTime(currentTime) : '00:00'}</span>
           <span>{hasTrack && duration > 0 ? formatTime(duration) : '--:--'}</span>
         </div>
@@ -99,21 +99,22 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
       <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4">
         {/* Track Info */}
         <div className="min-w-0 max-w-xs w-full sm:w-auto text-center sm:text-left">
-          <h3 className="text-xs sm:text-sm font-semibold text-purple-100 truncate leading-tight">
+          <h3 className="text-xs sm:text-sm font-semibold text-zinc-100 truncate leading-tight">
             {currentTrack?.title || 'No video loaded'}
           </h3>
-          <p className="text-[11px] text-purple-300/70 truncate leading-tight mt-0.5">
+          <p className="text-[11px] text-zinc-400 truncate leading-tight mt-0.5">
             {currentTrack?.artist || 'Add a YouTube link to play'}
           </p>
         </div>
 
-        {/* Transport Controls (Compact heights) */}
+        {/* Transport Controls */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             onClick={onPrevTrack}
             disabled={!hasTrack}
-            className="p-1.5 rounded-full text-purple-200 hover:text-white hover:bg-purple-500/15 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="p-1.5 rounded-md text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-30 disabled:pointer-events-none transition-colors"
             title="Previous video"
+            aria-label="Previous video"
           >
             <SkipBack className="w-4 h-4 fill-current" />
           </button>
@@ -121,8 +122,9 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
           <button
             onClick={onTogglePlay}
             disabled={!hasTrack}
-            className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 via-purple-500 to-violet-400 hover:from-purple-500 hover:to-violet-300 disabled:opacity-30 disabled:pointer-events-none text-white flex items-center justify-center shadow-[0_0_16px_rgba(168,85,247,0.4)] transition-all hover:scale-105 active:scale-95"
+            className="w-9 h-9 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:pointer-events-none text-white flex items-center justify-center transition-colors"
             title={isPlaying ? 'Pause' : 'Play'}
+            aria-label={isPlaying ? 'Pause' : 'Play'}
           >
             {isPlaying && hasTrack ? (
               <Pause className="w-4 h-4 fill-current" />
@@ -134,8 +136,9 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
           <button
             onClick={onNextTrack}
             disabled={!hasTrack}
-            className="p-1.5 rounded-full text-purple-200 hover:text-white hover:bg-purple-500/15 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            className="p-1.5 rounded-md text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-30 disabled:pointer-events-none transition-colors"
             title="Next video"
+            aria-label="Next video"
           >
             <SkipForward className="w-4 h-4 fill-current" />
           </button>
@@ -143,12 +146,13 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
           {/* Loop Mode Toggle */}
           <button
             onClick={onToggleLoop}
-            className={`p-2 rounded-xl transition-all ${
+            className={`p-2 rounded-md transition-colors ${
               loopMode === 'single'
-                ? 'bg-purple-500/25 text-purple-200 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
-                : 'bg-purple-950/40 text-purple-300/70 hover:bg-purple-900/40 hover:text-purple-200 border border-purple-900/30'
+                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/40'
+                : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 border border-zinc-800'
             }`}
             title={loopMode === 'single' ? 'Currently looping 1 video infinitely' : 'Currently looping all videos in playlist'}
+            aria-label="Toggle loop mode"
           >
             {loopMode === 'single' ? (
               <Repeat1 className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -160,12 +164,13 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
           {/* Hide Video / Audio Only Mode */}
           <button
             onClick={onToggleVideoHidden}
-            className={`p-2 rounded-xl transition-all ${
+            className={`p-2 rounded-md transition-colors ${
               isVideoHidden
-                ? 'bg-purple-500/25 text-purple-200 border border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.3)]'
-                : 'bg-purple-950/40 text-purple-300/70 hover:text-purple-200 hover:bg-purple-900/40 border border-purple-900/30'
+                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/40'
+                : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 border border-zinc-800'
             }`}
             title={isVideoHidden ? 'Show Video Frame' : 'Hide Video (Audio Only for Optimal Speed)'}
+            aria-label={isVideoHidden ? 'Show Video Frame' : 'Hide Video'}
           >
             {isVideoHidden ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
           </button>
@@ -175,15 +180,16 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
         <div className="flex items-center gap-1.5 justify-end w-full sm:w-auto">
           <button
             onClick={onToggleMute}
-            className="p-1 text-purple-300/70 hover:text-purple-100 transition-colors"
+            className="p-1 text-zinc-400 hover:text-zinc-100 transition-colors"
             title={isMuted ? 'Unmute' : 'Mute'}
+            aria-label={isMuted ? 'Unmute' : 'Mute'}
           >
             {isMuted || volume === 0 ? (
-              <VolumeX className="w-3.5 h-3.5 text-fuchsia-400" />
+              <VolumeX className="w-3.5 h-3.5 text-red-400" />
             ) : volume < 50 ? (
-              <Volume1 className="w-3.5 h-3.5 text-purple-300" />
+              <Volume1 className="w-3.5 h-3.5 text-zinc-300" />
             ) : (
-              <Volume2 className="w-3.5 h-3.5 text-purple-200" />
+              <Volume2 className="w-3.5 h-3.5 text-zinc-200" />
             )}
           </button>
 
@@ -193,9 +199,10 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({
             max="100"
             value={isMuted ? 0 : volume}
             onChange={(e) => onVolumeChange(Number(e.target.value))}
-            className="w-16 sm:w-20 h-1.5 bg-purple-950 rounded-lg appearance-none cursor-pointer accent-purple-400"
+            aria-label="Volume"
+            className="w-16 sm:w-20 h-1.5 bg-zinc-800 rounded-sm appearance-none cursor-pointer accent-blue-500"
           />
-          <span className="text-[11px] font-mono text-purple-300/80 w-7 text-right tabular-nums">
+          <span className="text-[11px] font-mono text-zinc-400 w-7 text-right tabular-nums">
             {isMuted ? '0%' : `${volume}%`}
           </span>
         </div>

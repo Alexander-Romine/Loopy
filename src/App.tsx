@@ -10,28 +10,6 @@ import { YouTubePlayer } from './components/YouTubePlayer';
 import { PlayerControls } from './components/PlayerControls';
 import { PlaylistManager } from './components/PlaylistManager';
 
-// Fixed subtle star positions for a calm space backdrop
-const STARS = [
-  { top: '6%', left: '10%', size: '2px', opacity: 0.7, pulse: true },
-  { top: '14%', left: '82%', size: '1.5px', opacity: 0.5, pulse: false },
-  { top: '22%', left: '45%', size: '2px', opacity: 0.8, pulse: true },
-  { top: '32%', left: '8%', size: '1px', opacity: 0.4, pulse: false },
-  { top: '44%', left: '94%', size: '2.5px', opacity: 0.75, pulse: true },
-  { top: '58%', left: '15%', size: '1.5px', opacity: 0.45, pulse: false },
-  { top: '72%', left: '88%', size: '2px', opacity: 0.7, pulse: true },
-  { top: '86%', left: '28%', size: '1.5px', opacity: 0.5, pulse: false },
-  { top: '10%', left: '96%', size: '1.5px', opacity: 0.4, pulse: false },
-  { top: '25%', left: '62%', size: '1px', opacity: 0.5, pulse: false },
-  { top: '40%', left: '34%', size: '2px', opacity: 0.8, pulse: true },
-  { top: '64%', left: '76%', size: '1.5px', opacity: 0.5, pulse: false },
-  { top: '80%', left: '12%', size: '2px', opacity: 0.65, pulse: true },
-  { top: '92%', left: '68%', size: '1px', opacity: 0.4, pulse: false },
-  { top: '4%', left: '52%', size: '1.5px', opacity: 0.55, pulse: false },
-  { top: '50%', left: '55%', size: '1px', opacity: 0.35, pulse: false },
-  { top: '68%', left: '40%', size: '1.5px', opacity: 0.6, pulse: true },
-  { top: '88%', left: '84%', size: '1.5px', opacity: 0.5, pulse: false },
-];
-
 export default function App() {
   // Load playlist from localStorage (defaults to empty: no default songs)
   const [tracks, setTracks] = useState<LofiTrack[]>(() => {
@@ -241,32 +219,10 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#090513] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(147,51,234,0.18),rgba(9,5,19,0))] text-[#f3e8ff] flex flex-col selection:bg-purple-500 selection:text-white font-sans overflow-x-hidden">
-      {/* Subtle Starry Space Background */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-        {STARS.map((star, idx) => (
-          <span
-            key={`star-${idx}`}
-            className={`absolute rounded-full bg-purple-100 ${star.pulse ? 'animate-pulse' : ''}`}
-            style={{
-              top: star.top,
-              left: star.left,
-              width: star.size,
-              height: star.size,
-              opacity: star.opacity,
-              boxShadow: '0 0 5px rgba(216, 180, 254, 0.7)',
-            }}
-          />
-        ))}
-      </div>
+    <div className="min-h-screen bg-[#0a0a0c] text-zinc-100 flex flex-col selection:bg-blue-600 selection:text-white font-sans overflow-x-hidden">
+      <TopBar />
 
-      {/* 1. Ultra-clean Top Bar */}
-      <div className="relative z-10">
-        <TopBar />
-      </div>
-
-      {/* 2. Main Studio Grid */}
-      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Main Video & Controls Column (7 Cols on desktop) */}
           <div className="lg:col-span-7 flex flex-col gap-4">

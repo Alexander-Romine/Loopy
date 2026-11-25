@@ -12,8 +12,8 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: #0a0a0c;
-  color: #f4f4f5;
+  background-color: #141210;
+  color: #f3ede2;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -21,27 +21,40 @@ body {
 }
 
 ::selection {
-  background-color: #3b82f6;
-  color: #ffffff;
+  background-color: #e07a38;
+  color: #141210;
 }
 
-/* Neutral scrollbar */
+@keyframes spin-vinyl {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-vinyl {
+  animation: spin-vinyl 3.2s linear infinite;
+}
+
+/* Warm analog scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0c;
+  background: #141210;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(161, 161, 170, 0.25);
+  background: rgba(158, 148, 136, 0.25);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(161, 161, 170, 0.45);
+  background: rgba(224, 122, 56, 0.45);
 }
 
 /* Hardware performance optimizations for background tabs:

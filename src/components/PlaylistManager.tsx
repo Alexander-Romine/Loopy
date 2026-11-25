@@ -60,7 +60,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
   };
 
   return (
-    <div className="bg-[#111114] border border-zinc-800 rounded-lg p-4 sm:p-5 flex flex-col h-full">
+    <div className="bg-[#1a1714] border border-[#2c2722] rounded-xl p-4 sm:p-5 flex flex-col h-full">
       {/* 1. Quick Add Video Bar */}
       <div className="mb-4">
         <form onSubmit={handleAddSubmit} className="flex items-center gap-2">
@@ -72,12 +72,12 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
               if (error) setError(null);
             }}
             placeholder="Paste YouTube link (e.g. youtu.be/...)"
-            className="flex-1 px-3 py-2 bg-[#0a0a0c] border border-zinc-800 rounded-md text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500 transition-colors"
+            className="flex-1 px-3 py-2 bg-[#141210] border border-[#2c2722] rounded-md text-xs text-[#f3ede2] placeholder-[#736a60] focus:outline-none focus:border-[#e07a38] transition-colors"
           />
 
           <button
             type="submit"
-            className="flex items-center justify-center w-9 h-9 rounded-md bg-blue-600 hover:bg-blue-500 text-white transition-colors shrink-0"
+            className="flex items-center justify-center w-9 h-9 rounded-md bg-[#e07a38] hover:bg-[#ea8b4d] text-[#141210] transition-colors shrink-0"
             title="Add & play video"
             aria-label="Add and play video"
           >
@@ -89,8 +89,8 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
             onClick={onToggleLoop}
             className={`flex items-center justify-center w-9 h-9 rounded-md transition-colors shrink-0 ${
               loopMode === 'single'
-                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/40'
-                : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:bg-zinc-800'
+                ? 'bg-[#e07a38]/20 text-[#e07a38] border border-[#e07a38]/40'
+                : 'bg-[#141210] text-[#9e9488] border border-[#2c2722] hover:bg-[#25211d]'
             }`}
             title={loopMode === 'single' ? 'Loop: Single Video' : 'Loop: All Videos'}
             aria-label="Toggle loop mode"
@@ -111,27 +111,27 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
         )}
       </div>
 
-      {/* 2. Playlist Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-zinc-800 mb-3 text-xs">
+      {/* 2. Record Crate Header */}
+      <div className="flex items-center justify-between pb-3 border-b border-[#2c2722] mb-3 text-xs">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-zinc-100">Playlist</span>
-          <span className="text-zinc-500 font-mono tabular-nums">
+          <span className="font-semibold text-[#f3ede2]">Record Crate</span>
+          <span className="text-[#9e9488] font-mono tabular-nums">
             ({tracks.length})
           </span>
         </div>
-        <div className="text-[11px] text-zinc-400">
-          {loopMode === 'single' ? 'Looping 1 video' : 'Looping all videos'}
+        <div className="text-[11px] font-mono text-[#c8a258]">
+          {loopMode === 'single' ? 'Looping 1 side' : 'Looping all'}
         </div>
       </div>
 
       {/* 3. Track List or Empty State */}
       <div className="space-y-2 overflow-y-auto max-h-[460px] flex-1 pr-1">
         {tracks.length === 0 ? (
-          <div className="py-12 px-4 text-center bg-[#0a0a0c] rounded-md border border-dashed border-zinc-800">
-            <Music className="w-7 h-7 text-zinc-600 mx-auto mb-2" />
-            <p className="text-xs font-medium text-zinc-300">Playlist is empty</p>
-            <p className="text-[11px] text-zinc-500 mt-0.5">
-              Paste a link above to add your first looping video.
+          <div className="py-12 px-4 text-center bg-[#141210] rounded-lg border border-dashed border-[#2c2722]">
+            <Music className="w-7 h-7 text-[#736a60] mx-auto mb-2" />
+            <p className="text-xs font-medium text-[#f3ede2]">Crate is empty</p>
+            <p className="text-[11px] text-[#9e9488] mt-0.5">
+              Paste a YouTube link above to press your first record.
             </p>
           </div>
         ) : (
@@ -141,16 +141,16 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
             return (
               <div
                 key={track.id}
-                className={`group flex items-center gap-3 p-2 rounded-md border transition-colors ${
+                className={`group flex items-center gap-3 p-2 rounded-lg border transition-colors ${
                   isCurrent
-                    ? 'bg-blue-600/10 border-blue-500/40'
-                    : 'bg-[#0a0a0c] hover:bg-zinc-900 border-zinc-800'
+                    ? 'bg-[#e07a38]/10 border-[#e07a38]/40'
+                    : 'bg-[#141210] hover:bg-[#25211d] border-[#2c2722]'
                 }`}
               >
                 <button
                   type="button"
                   onClick={() => onSelectTrack(track)}
-                  className="relative w-14 h-10 rounded overflow-hidden shrink-0 cursor-pointer bg-zinc-900 border border-zinc-800"
+                  className="relative w-12 h-10 rounded overflow-hidden shrink-0 cursor-pointer bg-[#0e0c0a] border border-[#2c2722]"
                   aria-label={`Play ${track.title}`}
                 >
                   <img
@@ -166,12 +166,12 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                   >
                     {isCurrent && isPlaying ? (
                       <div className="flex gap-0.5 items-end h-3">
-                        <div className="w-0.5 h-full bg-blue-400 animate-pulse" />
-                        <div className="w-0.5 h-2 bg-blue-300 animate-pulse delay-75" />
-                        <div className="w-0.5 h-full bg-blue-500 animate-pulse delay-150" />
+                        <div className="w-0.5 h-full bg-[#e07a38] animate-pulse" />
+                        <div className="w-0.5 h-2 bg-[#c8a258] animate-pulse delay-75" />
+                        <div className="w-0.5 h-full bg-[#e07a38] animate-pulse delay-150" />
                       </div>
                     ) : (
-                      <Play className="w-3.5 h-3.5 text-zinc-100 fill-current opacity-80 group-hover:opacity-100" />
+                      <Play className="w-3.5 h-3.5 text-[#f3ede2] fill-current opacity-80 group-hover:opacity-100" />
                     )}
                   </div>
                 </button>
@@ -184,16 +184,16 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                   <div className="flex items-center gap-1.5">
                     <h4
                       className={`text-xs font-medium truncate ${
-                        isCurrent ? 'text-blue-300 font-semibold' : 'text-zinc-100'
+                        isCurrent ? 'text-[#e07a38] font-semibold' : 'text-[#f3ede2]'
                       }`}
                     >
                       {track.title}
                     </h4>
                     {isCurrent && loopMode === 'single' && (
-                      <Repeat1 className="w-3 h-3 text-blue-400 shrink-0" />
+                      <Repeat1 className="w-3 h-3 text-[#e07a38] shrink-0" />
                     )}
                   </div>
-                  <p className="text-[11px] text-zinc-500 truncate mt-0.5">
+                  <p className="text-[11px] text-[#9e9488] truncate mt-0.5">
                     {track.artist}
                   </p>
                 </button>
@@ -203,7 +203,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
                     href={`https://www.youtube.com/watch?v=${track.youtubeId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-1.5 text-zinc-400 hover:text-zinc-100 transition-colors"
+                    className="p-1.5 text-[#9e9488] hover:text-[#f3ede2] transition-colors"
                     title="Open video on YouTube"
                     aria-label="Open video on YouTube"
                   >
@@ -212,7 +212,7 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
 
                   <button
                     onClick={() => onDeleteTrack(track.id)}
-                    className="p-1.5 text-zinc-400 hover:text-rose-400 transition-colors"
+                    className="p-1.5 text-[#9e9488] hover:text-rose-400 transition-colors"
                     title="Remove from playlist"
                     aria-label="Remove from playlist"
                   >

@@ -219,7 +219,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-zinc-100 flex flex-col selection:bg-blue-600 selection:text-white font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-[#141210] text-[#f3ede2] flex flex-col selection:bg-[#e07a38] selection:text-[#141210] font-sans overflow-x-hidden">
       <TopBar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -234,6 +234,7 @@ export default function App() {
               volume={volume}
               isMuted={isMuted}
               isVideoHidden={isVideoHidden}
+              onTogglePlay={() => setIsPlaying((prev) => !prev)}
               onToggleVideoHidden={() => setIsVideoHidden((prev) => !prev)}
               onTrackEnded={handleTrackEnded}
               onPlayStateChange={setIsPlaying}

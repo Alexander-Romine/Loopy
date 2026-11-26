@@ -67,13 +67,18 @@ export default function App() {
   const [volume, setVolume] = useState(85);
   const [isMuted, setIsMuted] = useState(false);
   const [seekTime, setSeekTime] = useState<number | null>(null);
+  const [isTabHidden, setIsTabHidden] = useState(() =>
+    typeof document !== 'undefined' ? document.hidden : false
+  );
 
   // Zero-rerender timecode pub-sub
   const currentTimeRef = useRef(0);
+  const durationRef = useRef(0);
   const timeListenersRef = useRef(new Set<(c: number, d: number) => void>());
 
   const timeSubscribe = useCallback((cb: (c: number, d: number) => void) => {
     timeListenersRef.current.add(cb);
+    cb(currentTimeRef.current, durationRef.current);
     return () => {
       timeListenersRef.current.delete(cb);
     };
@@ -81,6 +86,7 @@ export default function App() {
 
   const handleTimeUpdate = useCallback((curr: number, dur: number) => {
     currentTimeRef.current = curr;
+    durationRef.current = dur;
     timeListenersRef.current.forEach((cb) => cb(curr, dur));
   }, []);
 
@@ -110,7 +116,9 @@ export default function App() {
 
   useEffect(() => {
     const handleVisibility = () => {
-      document.body.classList.toggle('tab-inactive', document.hidden);
+      const hidden = document.hidden;
+      document.body.classList.toggle('tab-inactive', hidden);
+      setIsTabHidden(hidden);
     };
     handleVisibility();
     document.addEventListener('visibilitychange', handleVisibility);
@@ -227,75 +235,77 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen text-[#f3ece0] flex flex-col justify-between font-sans overflow-x-hidden bg-[#140e0a]">
-      {/* Active Theme Backdrop (only the selected theme image is loaded) */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        <img
-          key={activeTheme.bg}
-          src={activeTheme.bg}
-          alt=""
-          decoding="async"
-          className="w-full h-full object-cover object-center"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(120deg, rgba(16, 12, 9, 0.35) 0%, rgba(16, 12, 9, 0.55) 100%)',
-          }}
-        />
-      </div>
-
-      {/* Main Interactive Listening Booth */}
-      <main className="relative z-10 flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-10">
-        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          {/* Left: Walnut Turntable */}
-          <div className="lg:col-span-7 flex flex-col items-center justify-center">
-            <Turntable
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              onTogglePlay={() => setIsPlaying((prev) => !prev)}
+      {/* Unmount all visual DOM & decoded images when tab is hidden to minimize background RAM */}
+      {!isTabHidden && (
+        <>
+          <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+            <img
+              key={activeTheme.bg}
+              src={activeTheme.bg}
+              alt=""
+              decoding="async"
+              className="w-full h-full object-cover object-center"
             />
-
-            <YouTubePlayer
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              loopMode={loopMode}
-              volume={volume}
-              isMuted={isMuted}
-              onTrackEnded={handleTrackEnded}
-              onPlayStateChange={setIsPlaying}
-              onTimeUpdate={handleTimeUpdate}
-              seekTime={seekTime}
-              onSeekHandled={() => setSeekTime(null)}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  'linear-gradient(120deg, rgba(16, 12, 9, 0.35) 0%, rgba(16, 12, 9, 0.55) 100%)',
+              }}
             />
           </div>
 
-          {/* Right: Liquid Glass Listening Station Console */}
-          <div className="lg:col-span-5">
-            <PlaylistManager
-              tracks={tracks}
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              loopMode={loopMode}
-              volume={volume}
-              isMuted={isMuted}
-              theme={theme}
-              timeSubscribe={timeSubscribe}
-              onChangeTheme={setTheme}
-              onTogglePlay={() => setIsPlaying((prev) => !prev)}
-              onPrevTrack={handlePrevTrack}
-              onNextTrack={handleNextTrack}
-              onToggleLoop={handleToggleLoop}
-              onVolumeChange={setVolume}
-              onToggleMute={() => setIsMuted((prev) => !prev)}
-              onSeek={(target) => setSeekTime(target)}
-              onSelectTrack={handleSelectTrack}
-              onDeleteTrack={handleDeleteTrack}
-              onAddTrack={handleAddTrack}
-            />
-          </div>
-        </div>
-      </main>
+          <main className="relative z-10 flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-10">
+            <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              <div className="lg:col-span-7 flex flex-col items-center justify-center">
+                <Turntable
+                  currentTrack={currentTrack}
+                  isPlaying={isPlaying}
+                  onTogglePlay={() => setIsPlaying((prev) => !prev)}
+                />
+              </div>
+
+              <div className="lg:col-span-5">
+                <PlaylistManager
+                  tracks={tracks}
+                  currentTrack={currentTrack}
+                  isPlaying={isPlaying}
+                  loopMode={loopMode}
+                  volume={volume}
+                  isMuted={isMuted}
+                  theme={theme}
+                  timeSubscribe={timeSubscribe}
+                  onChangeTheme={setTheme}
+                  onTogglePlay={() => setIsPlaying((prev) => !prev)}
+                  onPrevTrack={handlePrevTrack}
+                  onNextTrack={handleNextTrack}
+                  onToggleLoop={handleToggleLoop}
+                  onVolumeChange={setVolume}
+                  onToggleMute={() => setIsMuted((prev) => !prev)}
+                  onSeek={(target) => setSeekTime(target)}
+                  onSelectTrack={handleSelectTrack}
+                  onDeleteTrack={handleDeleteTrack}
+                  onAddTrack={handleAddTrack}
+                />
+              </div>
+            </div>
+          </main>
+        </>
+      )}
+
+      {/* Audio-only YouTube engine stays mounted so playback continues in the background */}
+      <YouTubePlayer
+        currentTrack={currentTrack}
+        isPlaying={isPlaying}
+        loopMode={loopMode}
+        volume={volume}
+        isMuted={isMuted}
+        onTrackEnded={handleTrackEnded}
+        onPlayStateChange={setIsPlaying}
+        onTimeUpdate={handleTimeUpdate}
+        seekTime={seekTime}
+        onSeekHandled={() => setSeekTime(null)}
+      />
     </div>
   );
 }

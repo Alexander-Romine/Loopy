@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { LofiTrack, LoopMode } from '../types/lofi';
+import React, { useState, useRef, useEffect } from 'react';
+import { LofiTrack, LoopMode, ThemeId } from '../types/lofi';
 import { extractYouTubeId, getYouTubeThumbnail } from '../services/youtube';
 import {
   Play,
@@ -16,7 +16,42 @@ import {
   ExternalLink,
   AlertCircle,
   Disc3,
+  Settings,
 } from 'lucide-react';
+
+export const THEME_OPTIONS: {
+  id: ThemeId;
+  label: string;
+  bg: string;
+  accent: string;
+  panelBg: string;
+  swatch: string;
+}[] = [
+  {
+    id: 'cafe',
+    label: 'Sunlit Cafe',
+    bg: '/coffee-shop-bg.jpg',
+    accent: '#e86b3a',
+    panelBg: 'rgba(22, 16, 12, 0.82)',
+    swatch: '#c85a32',
+  },
+  {
+    id: 'midnight',
+    label: 'Midnight Lounge',
+    bg: '/midnight-lounge-bg.jpg',
+    accent: '#d4a34b',
+    panelBg: 'rgba(14, 14, 18, 0.84)',
+    swatch: '#d4a34b',
+  },
+  {
+    id: 'botanical',
+    label: 'Botanical Studio',
+    bg: '/botanical-studio-bg.jpg',
+    accent: '#529471',
+    panelBg: 'rgba(16, 22, 18, 0.80)',
+    swatch: '#529471',
+  },
+];
 
 interface ConsolePanelProps {
   tracks: LofiTrack[];
@@ -25,8 +60,9 @@ interface ConsolePanelProps {
   loopMode: LoopMode;
   volume: number;
   isMuted: boolean;
-  currentTime: number;
-  duration: number;
+  theme: ThemeId;
+  timeSubscribe: (cb: (current: number, duration: number) => void) => () => void;
+  onChangeTheme: (theme: ThemeId) => void;
   onTogglePlay: () => void;
   onPrevTrack: () => void;
   onNextTrack: () => void;
@@ -39,6 +75,13 @@ interface ConsolePanelProps {
   onAddTrack: (track: LofiTrack, playImmediately: boolean) => void;
 }
 
+const formatTime = (secs: number) => {
+  if (isNaN(secs) || secs < 0) return '00:00';
+  const m = Math.floor(secs / 60);
+  const s = Math.floor(secs % 60);
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+};
+
 export const PlaylistManager: React.FC<ConsolePanelProps> = ({
   tracks,
   currentTrack,
@@ -46,8 +89,9 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
   loopMode,
   volume,
   isMuted,
-  currentTime,
-  duration,
+  theme,
+  timeSubscribe,
+  onChangeTheme,
   onTogglePlay,
   onPrevTrack,
   onNextTrack,
@@ -61,25 +105,43 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
 }) => {
   const [urlInput, setUrlInput] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const progressFillRef = useRef<HTMLDivElement>(null);
+  const timeTextRef = useRef<HTMLDivElement>(null);
+  const durationRef = useRef<number>(0);
 
   const hasTrack = Boolean(currentTrack && currentTrack.youtubeId);
-  const spinning = hasTrack && isPlaying;
-  const progressPercent =
-    duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
+  const activeTheme = THEME_OPTIONS.find((t) => t.id === theme) || THEME_OPTIONS[0];
 
-  const formatTime = (secs: number) => {
-    if (isNaN(secs) || secs < 0) return '00:00';
-    const m = Math.floor(secs / 60);
-    const s = Math.floor(secs % 60);
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
+  // Direct DOM updates for timecode & progress bar (zero React re-renders during playback)
+  useEffect(() => {
+    if (!hasTrack) {
+      durationRef.current = 0;
+      if (progressFillRef.current) progressFillRef.current.style.width = '0%';
+      if (timeTextRef.current) timeTextRef.current.textContent = '00:00 / --:--';
+      return;
+    }
+
+    return timeSubscribe((current, dur) => {
+      durationRef.current = dur;
+      const pct = dur > 0 ? Math.min(100, Math.max(0, (current / dur) * 100)) : 0;
+      if (progressFillRef.current) {
+        progressFillRef.current.style.width = `${pct}%`;
+      }
+      if (timeTextRef.current) {
+        timeTextRef.current.textContent = `${formatTime(current)} / ${dur > 0 ? formatTime(dur) : '--:--'}`;
+      }
+    });
+  }, [hasTrack, timeSubscribe]);
 
   const handleProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!hasTrack || !duration || duration <= 0) return;
+    const dur = durationRef.current;
+    if (!hasTrack || !dur || dur <= 0) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const percent = Math.max(0, Math.min(1, clickX / rect.width));
-    onSeek(percent * duration);
+    onSeek(percent * dur);
   };
 
   const handleAddSubmit = (e: React.FormEvent) => {
@@ -88,7 +150,7 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
 
     const id = extractYouTubeId(urlInput);
     if (!id) {
-      setError('Please paste a valid YouTube video link or ID.');
+      setError('Please paste a valid YouTube link.');
       return;
     }
 
@@ -108,14 +170,61 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
   return (
     <aside
       aria-label="Listening Station Console"
-      className="relative flex flex-col rounded-2xl border border-white/20 bg-[#16100c]/82 text-[#f7f2ea] p-5 sm:p-6 h-full min-h-[540px] shadow-[0_18px_40px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.28)]"
+      style={{ backgroundColor: activeTheme.panelBg }}
+      className="relative flex flex-col rounded-2xl border border-white/20 text-[#f7f2ea] p-5 sm:p-6 h-full min-h-[540px] shadow-[0_18px_40px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.28)]"
     >
-      {/* 1. Liquid Glass Station Header */}
+      {/* 1. Station Header + Settings Cog */}
       <div className="flex items-center justify-between border-b border-white/15 pb-3 mb-4">
-        <h1 className="font-[var(--font-display)] text-lg font-extrabold tracking-tight text-white leading-none">
+        <h1 className="font-[var(--font-display)] text-lg font-bold tracking-tight text-white leading-none">
           LOOPY CAFE
         </h1>
+        <button
+          type="button"
+          onClick={() => setSettingsOpen((prev) => !prev)}
+          className={`p-1.5 rounded-lg border transition-colors ${
+            settingsOpen
+              ? 'bg-white/20 border-white/30 text-white'
+              : 'bg-white/5 border-white/10 text-white/70 hover:text-white hover:bg-white/15'
+          }`}
+          title="Background & Theme Settings"
+          aria-label="Background and theme settings"
+          aria-expanded={settingsOpen}
+        >
+          <Settings className="w-4 h-4" />
+        </button>
       </div>
+
+      {/* Theme Picker Drawer (collapsible) */}
+      {settingsOpen && (
+        <div className="mb-4 rounded-xl bg-black/35 border border-white/15 p-3 space-y-2">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-white/60">
+            Room Theme
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {THEME_OPTIONS.map((opt) => {
+              const selected = opt.id === theme;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => onChangeTheme(opt.id)}
+                  className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg border text-[11px] font-medium transition-colors ${
+                    selected
+                      ? 'bg-white/15 border-white/40 text-white'
+                      : 'bg-white/[0.04] border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <span
+                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                    style={{ backgroundColor: opt.swatch }}
+                  />
+                  <span className="truncate">{opt.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 2. Now Playing & Frosted Transport */}
       <div className="rounded-xl bg-white/[0.08] border border-white/15 p-3.5 mb-4 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]">
@@ -128,10 +237,11 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
               {currentTrack?.artist || 'Audio-only turntable'}
             </p>
           </div>
-          <div className="font-mono text-[11px] text-[#f3d19e] tabular-nums shrink-0">
-            {hasTrack ? formatTime(currentTime) : '00:00'}{' '}
-            <span className="text-white/35">/</span>{' '}
-            {hasTrack && duration > 0 ? formatTime(duration) : '--:--'}
+          <div
+            ref={timeTextRef}
+            className="font-mono text-[11px] text-white/80 tabular-nums shrink-0"
+          >
+            00:00 / --:--
           </div>
         </div>
 
@@ -141,15 +251,16 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
           role="slider"
           aria-label="Track progress"
           aria-valuemin={0}
-          aria-valuemax={duration || 100}
-          aria-valuenow={currentTime}
+          aria-valuemax={100}
+          aria-valuenow={0}
           className={`relative w-full h-2 bg-black/30 border border-white/10 rounded-full ${
             hasTrack ? 'cursor-pointer' : 'opacity-45 cursor-not-allowed'
           }`}
         >
           <div
-            className="h-full bg-[#e86b3a] rounded-full relative"
-            style={{ width: `${progressPercent}%` }}
+            ref={progressFillRef}
+            className="h-full rounded-full relative"
+            style={{ width: '0%', backgroundColor: activeTheme.accent }}
           >
             {hasTrack && (
               <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow" />
@@ -175,7 +286,8 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
               type="button"
               onClick={onTogglePlay}
               disabled={!hasTrack}
-              className="px-3.5 py-2 rounded-lg bg-[#e86b3a] hover:bg-[#f07c4e] disabled:opacity-35 disabled:pointer-events-none text-white font-mono text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]"
+              style={{ backgroundColor: activeTheme.accent }}
+              className="px-3.5 py-2 rounded-lg hover:brightness-110 disabled:opacity-35 disabled:pointer-events-none text-white font-mono text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]"
               title={isPlaying ? 'Pause' : 'Spin'}
               aria-label={isPlaying ? 'Pause' : 'Play'}
             >
@@ -208,7 +320,7 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
               onClick={onToggleLoop}
               className={`px-2.5 py-2 rounded-lg border font-mono text-[10px] font-bold flex items-center gap-1 transition-colors ${
                 loopMode === 'single'
-                  ? 'bg-[#e86b3a]/25 text-[#ffd2be] border-[#e86b3a]/50'
+                  ? 'bg-white/20 text-white border-white/35'
                   : 'bg-white/10 text-white/70 border-white/15 hover:text-white'
               }`}
               title={loopMode === 'single' ? 'Loop: 1 Side' : 'Loop: All'}
@@ -237,7 +349,7 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
               aria-label={isMuted ? 'Unmute' : 'Mute'}
             >
               {isMuted || volume === 0 ? (
-                <VolumeX className="w-3.5 h-3.5 text-[#e86b3a]" />
+                <VolumeX className="w-3.5 h-3.5 text-rose-400" />
               ) : volume < 50 ? (
                 <Volume1 className="w-3.5 h-3.5" />
               ) : (
@@ -251,7 +363,8 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
               value={isMuted ? 0 : volume}
               onChange={(e) => onVolumeChange(Number(e.target.value))}
               aria-label="Volume"
-              className="w-16 h-1.5 bg-white/20 rounded-full appearance-none cursor-pointer accent-[#e86b3a]"
+              style={{ accentColor: activeTheme.accent }}
+              className="w-16 h-1.5 bg-white/20 rounded-full appearance-none cursor-pointer"
             />
             <span className="text-[10px] font-mono text-white/70 w-7 text-right tabular-nums">
               {isMuted ? '0%' : `${volume}%`}
@@ -271,7 +384,7 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
               if (error) setError(null);
             }}
             placeholder="Paste YouTube link..."
-            className="flex-1 px-3 py-2 bg-black/25 border border-white/15 rounded-lg text-xs font-mono text-white placeholder-white/45 focus:outline-none focus:border-[#e86b3a] transition-colors"
+            className="flex-1 px-3 py-2 bg-black/25 border border-white/15 rounded-lg text-xs font-mono text-white placeholder-white/45 focus:outline-none focus:border-white/40 transition-colors"
           />
 
           <button
@@ -311,7 +424,7 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
                 key={track.id}
                 className={`group flex items-center gap-2.5 p-2 rounded-xl border transition-colors ${
                   isCurrent
-                    ? 'bg-[#e86b3a]/20 border-[#e86b3a]/50'
+                    ? 'bg-white/15 border-white/35'
                     : 'bg-white/[0.06] hover:bg-white/[0.12] border-white/10'
                 }`}
               >
@@ -340,11 +453,7 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
                   onClick={() => onSelectTrack(track)}
                   className="min-w-0 flex-1 cursor-pointer text-left"
                 >
-                  <h3
-                    className={`text-xs font-semibold truncate ${
-                      isCurrent ? 'text-[#ffd2be]' : 'text-white'
-                    }`}
-                  >
+                  <h3 className="text-xs font-semibold truncate text-white">
                     {track.title}
                   </h3>
                   <p className="text-[10px] font-mono text-white/60 truncate">

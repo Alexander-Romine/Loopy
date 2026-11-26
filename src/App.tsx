@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { LofiTrack, LoopMode } from './types/lofi';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { LofiTrack, LoopMode, ThemeId } from './types/lofi';
 import { Turntable } from './components/Turntable';
 import { YouTubePlayer } from './components/YouTubePlayer';
-import { PlaylistManager } from './components/PlaylistManager';
+import { PlaylistManager, THEME_OPTIONS } from './components/PlaylistManager';
 
 export default function App() {
   const [tracks, setTracks] = useState<LofiTrack[]>(() => {
@@ -52,11 +52,45 @@ export default function App() {
     return 'single';
   });
 
+  const [theme, setTheme] = useState<ThemeId>(() => {
+    try {
+      const saved = localStorage.getItem('loopy_theme');
+      if (saved === 'cafe' || saved === 'midnight' || saved === 'botanical') {
+        return saved;
+      }
+    } catch {
+      // fallback
+    }
+    return 'cafe';
+  });
+
   const [volume, setVolume] = useState(85);
   const [isMuted, setIsMuted] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const [seekTime, setSeekTime] = useState<number | null>(null);
+
+  // Zero-rerender timecode pub-sub
+  const currentTimeRef = useRef(0);
+  const timeListenersRef = useRef(new Set<(c: number, d: number) => void>());
+
+  const timeSubscribe = useCallback((cb: (c: number, d: number) => void) => {
+    timeListenersRef.current.add(cb);
+    return () => {
+      timeListenersRef.current.delete(cb);
+    };
+  }, []);
+
+  const handleTimeUpdate = useCallback((curr: number, dur: number) => {
+    currentTimeRef.current = curr;
+    timeListenersRef.current.forEach((cb) => cb(curr, dur));
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('loopy_theme', theme);
+    } catch {
+      // ignore
+    }
+  }, [theme]);
 
   useEffect(() => {
     try {
@@ -101,18 +135,18 @@ export default function App() {
   const handleNextTrack = useCallback(() => {
     if (!tracks.length) return;
     setCurrentTrackIndex((prev) => (prev + 1) % tracks.length);
-    setCurrentTime(0);
+    currentTimeRef.current = 0;
   }, [tracks.length]);
 
   const handlePrevTrack = useCallback(() => {
     if (!tracks.length) return;
-    if (currentTime > 4) {
+    if (currentTimeRef.current > 4) {
       setSeekTime(0);
       return;
     }
     setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length);
-    setCurrentTime(0);
-  }, [tracks.length, currentTime]);
+    currentTimeRef.current = 0;
+  }, [tracks.length]);
 
   const handleTrackEnded = useCallback(() => {
     if (loopMode === 'single') {
@@ -123,9 +157,9 @@ export default function App() {
     }
   }, [loopMode, handleNextTrack]);
 
-  const handleToggleLoop = () => {
+  const handleToggleLoop = useCallback(() => {
     setLoopMode((prev) => (prev === 'single' ? 'all' : 'single'));
-  };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -156,14 +190,14 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNextTrack, handlePrevTrack, tracks.length]);
+  }, [handleNextTrack, handlePrevTrack, handleToggleLoop, tracks.length]);
 
   const handleAddTrack = (newTrack: LofiTrack, playImmediately: boolean) => {
     setTracks((prev) => [newTrack, ...prev]);
     if (playImmediately) {
       setCurrentTrackIndex(0);
       setIsPlaying(true);
-      setCurrentTime(0);
+      currentTimeRef.current = 0;
     }
   };
 
@@ -185,16 +219,19 @@ export default function App() {
     if (idx !== -1) {
       setCurrentTrackIndex(idx);
       setIsPlaying(true);
-      setCurrentTime(0);
+      currentTimeRef.current = 0;
     }
   };
 
+  const activeTheme = THEME_OPTIONS.find((t) => t.id === theme) || THEME_OPTIONS[0];
+
   return (
-    <div className="relative min-h-screen text-[#f3ece0] flex flex-col justify-between font-sans overflow-x-hidden bg-[#1b120d]">
-      {/* Real Coffee Shop Room Backdrop */}
+    <div className="relative min-h-screen text-[#f3ece0] flex flex-col justify-between font-sans overflow-x-hidden bg-[#140e0a]">
+      {/* Active Theme Backdrop (only the selected theme image is loaded) */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
         <img
-          src="/coffee-shop-bg.jpg"
+          key={activeTheme.bg}
+          src={activeTheme.bg}
           alt=""
           decoding="async"
           className="w-full h-full object-cover object-center"
@@ -203,7 +240,7 @@ export default function App() {
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(120deg, rgba(22, 14, 9, 0.35) 0%, rgba(22, 14, 9, 0.55) 100%)',
+              'linear-gradient(120deg, rgba(16, 12, 9, 0.35) 0%, rgba(16, 12, 9, 0.55) 100%)',
           }}
         />
       </div>
@@ -211,7 +248,7 @@ export default function App() {
       {/* Main Interactive Listening Booth */}
       <main className="relative z-10 flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-10">
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          {/* Left: Walnut Turntable + Coffee Mug */}
+          {/* Left: Walnut Turntable */}
           <div className="lg:col-span-7 flex flex-col items-center justify-center">
             <Turntable
               currentTrack={currentTrack}
@@ -227,16 +264,13 @@ export default function App() {
               isMuted={isMuted}
               onTrackEnded={handleTrackEnded}
               onPlayStateChange={setIsPlaying}
-              onTimeUpdate={(curr, dur) => {
-                setCurrentTime(curr);
-                if (dur) setDuration(dur);
-              }}
+              onTimeUpdate={handleTimeUpdate}
               seekTime={seekTime}
               onSeekHandled={() => setSeekTime(null)}
             />
           </div>
 
-          {/* Right: Cream & Walnut Listening Station Console */}
+          {/* Right: Liquid Glass Listening Station Console */}
           <div className="lg:col-span-5">
             <PlaylistManager
               tracks={tracks}
@@ -245,8 +279,9 @@ export default function App() {
               loopMode={loopMode}
               volume={volume}
               isMuted={isMuted}
-              currentTime={currentTime}
-              duration={duration}
+              theme={theme}
+              timeSubscribe={timeSubscribe}
+              onChangeTheme={setTheme}
               onTogglePlay={() => setIsPlaying((prev) => !prev)}
               onPrevTrack={handlePrevTrack}
               onNextTrack={handleNextTrack}

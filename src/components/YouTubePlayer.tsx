@@ -123,6 +123,7 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
     if (!playerRef.current) {
       currentVideoIdRef.current = currentTrack.youtubeId;
       playerRef.current = new window.YT.Player(containerId, {
+        host: 'https://www.youtube-nocookie.com',
         height: '100%',
         width: '100%',
         videoId: currentTrack.youtubeId,
@@ -263,6 +264,33 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
     };
   }, [isPlaying]);
 
+  useEffect(() => {
+    if (!currentTrack || !currentTrack.youtubeId) {
+      if (playerRef.current && typeof playerRef.current.destroy === 'function') {
+        try {
+          playerRef.current.destroy();
+        } catch {
+          // ignore
+        }
+        playerRef.current = null;
+        currentVideoIdRef.current = null;
+      }
+    }
+  }, [currentTrack?.youtubeId]);
+
+  useEffect(() => {
+    return () => {
+      if (playerRef.current && typeof playerRef.current.destroy === 'function') {
+        try {
+          playerRef.current.destroy();
+        } catch {
+          // ignore
+        }
+        playerRef.current = null;
+      }
+    };
+  }, []);
+
   if (!currentTrack || !currentTrack.youtubeId) {
     return null;
   }
@@ -270,7 +298,10 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
   return (
     <>
       {/* Hidden 1x1 YouTube audio engine (video is never displayed) */}
-      <div className="fixed -bottom-[9999px] -right-[9999px] w-[1px] h-[1px] opacity-0 pointer-events-none">
+      <div
+        className="fixed -bottom-[9999px] -right-[9999px] w-[1px] h-[1px] opacity-0 pointer-events-none"
+        style={{ contain: 'strict' }}
+      >
         <div id={containerId} className="w-full h-full" />
       </div>
 

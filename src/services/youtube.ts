@@ -21,7 +21,7 @@ export function extractYouTubeId(input: string): string | null {
 
 export function getYouTubeThumbnail(videoId: string): string {
   if (!videoId) return '';
-  return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
 }
 
 // Default empty playlist - users add their own links

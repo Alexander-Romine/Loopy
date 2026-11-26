@@ -49,11 +49,12 @@ export const Turntable: React.FC<TurntableProps> = ({
                     ? 'Play record'
                     : 'No record loaded'
                 }
-                className={`relative w-[97%] h-[97%] rounded-full flex items-center justify-center animate-vinyl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c85a32] ${
+                className={`relative w-[97%] h-[97%] rounded-full flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c85a32] ${
+                  spinning ? 'animate-vinyl' : ''
+                } ${
                   hasTrack ? 'cursor-pointer' : 'cursor-default'
                 }`}
                 style={{
-                  animationPlayState: spinning ? 'running' : 'paused',
                   background:
                     'repeating-radial-gradient(circle at center, #11100f 0px, #11100f 2px, #1d1b19 3.5px, #0b0a09 5.5px)',
                 }}

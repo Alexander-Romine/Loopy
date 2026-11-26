@@ -37,7 +37,6 @@ body {
 
 .animate-vinyl {
   animation: spin-vinyl 3s linear infinite;
-  will-change: transform;
 }
 
 @keyframes steam-rise {

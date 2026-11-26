@@ -108,7 +108,7 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
   return (
     <aside
       aria-label="Listening Station Console"
-      className="relative flex flex-col rounded-2xl border border-white/20 bg-[#1a120d]/45 backdrop-blur-md text-[#f7f2ea] p-5 sm:p-6 h-full min-h-[540px] shadow-[0_18px_40px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.28)]"
+      className="relative flex flex-col rounded-2xl border border-white/20 bg-[#16100c]/82 text-[#f7f2ea] p-5 sm:p-6 h-full min-h-[540px] shadow-[0_18px_40px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.28)]"
     >
       {/* 1. Liquid Glass Station Header */}
       <div className="flex items-center justify-between border-b border-white/15 pb-3 mb-4">

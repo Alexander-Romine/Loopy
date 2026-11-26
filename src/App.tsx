@@ -5,13 +5,11 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { LofiTrack, LoopMode } from './types/lofi';
-import { TopBar } from './components/TopBar';
+import { Turntable } from './components/Turntable';
 import { YouTubePlayer } from './components/YouTubePlayer';
-import { PlayerControls } from './components/PlayerControls';
 import { PlaylistManager } from './components/PlaylistManager';
 
 export default function App() {
-  // Load playlist from localStorage (defaults to empty: no default songs)
   const [tracks, setTracks] = useState<LofiTrack[]>(() => {
     try {
       const saved = localStorage.getItem('loopy_user_playlist');
@@ -44,7 +42,6 @@ export default function App() {
 
   const [isPlaying, setIsPlaying] = useState(true);
 
-  // Restore saved loop mode (Loop This vs Loop All)
   const [loopMode, setLoopMode] = useState<LoopMode>(() => {
     try {
       const saved = localStorage.getItem('loopy_loop_mode');
@@ -57,14 +54,10 @@ export default function App() {
 
   const [volume, setVolume] = useState(85);
   const [isMuted, setIsMuted] = useState(false);
-  const [isVideoHidden, setIsVideoHidden] = useState<boolean>(() => {
-    return localStorage.getItem('loopy_video_hidden') === 'true';
-  });
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [seekTime, setSeekTime] = useState<number | null>(null);
 
-  // Persist loop mode choice
   useEffect(() => {
     try {
       localStorage.setItem('loopy_loop_mode', loopMode);
@@ -73,7 +66,6 @@ export default function App() {
     }
   }, [loopMode]);
 
-  // Persist tracks
   useEffect(() => {
     try {
       localStorage.setItem('loopy_user_playlist', JSON.stringify(tracks));
@@ -82,16 +74,6 @@ export default function App() {
     }
   }, [tracks]);
 
-  // Persist video hidden preference
-  useEffect(() => {
-    try {
-      localStorage.setItem('loopy_video_hidden', String(isVideoHidden));
-    } catch {
-      // ignore
-    }
-  }, [isVideoHidden]);
-
-  // Background tab optimization: pause animations and throttle when inactive
   useEffect(() => {
     const handleVisibility = () => {
       document.body.classList.toggle('tab-inactive', document.hidden);
@@ -101,13 +83,11 @@ export default function App() {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
-  // Current track pointer safety
   const currentTrack = useMemo(() => {
     if (!tracks.length) return null;
     return tracks[currentTrackIndex] || tracks[0] || null;
   }, [tracks, currentTrackIndex]);
 
-  // Persist active track ID so the user returns to this exact video next time
   useEffect(() => {
     if (currentTrack?.id) {
       try {
@@ -118,14 +98,12 @@ export default function App() {
     }
   }, [currentTrack?.id]);
 
-  // Next track logic
   const handleNextTrack = useCallback(() => {
     if (!tracks.length) return;
     setCurrentTrackIndex((prev) => (prev + 1) % tracks.length);
     setCurrentTime(0);
   }, [tracks.length]);
 
-  // Previous track logic
   const handlePrevTrack = useCallback(() => {
     if (!tracks.length) return;
     if (currentTime > 4) {
@@ -136,7 +114,6 @@ export default function App() {
     setCurrentTime(0);
   }, [tracks.length, currentTime]);
 
-  // When track finishes naturally in player
   const handleTrackEnded = useCallback(() => {
     if (loopMode === 'single') {
       setSeekTime(0);
@@ -146,12 +123,10 @@ export default function App() {
     }
   }, [loopMode, handleNextTrack]);
 
-  // Toggle between Loop Single Video (∞) and Loop Playlist
   const handleToggleLoop = () => {
     setLoopMode((prev) => (prev === 'single' ? 'all' : 'single'));
   };
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -167,9 +142,6 @@ export default function App() {
       } else if (e.code === 'KeyL') {
         e.preventDefault();
         handleToggleLoop();
-      } else if (e.code === 'KeyV') {
-        e.preventDefault();
-        setIsVideoHidden((prev) => !prev);
       } else if (e.code === 'KeyM') {
         e.preventDefault();
         setIsMuted((prev) => !prev);
@@ -186,7 +158,6 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleNextTrack, handlePrevTrack, tracks.length]);
 
-  // Add track and immediately loop it
   const handleAddTrack = (newTrack: LofiTrack, playImmediately: boolean) => {
     setTracks((prev) => [newTrack, ...prev]);
     if (playImmediately) {
@@ -219,67 +190,55 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#141210] text-[#f3ede2] flex flex-col selection:bg-[#e07a38] selection:text-[#141210] font-sans overflow-x-hidden">
-      <TopBar />
+    <div className="min-h-screen bg-[#0e0d0c] bg-grain text-[#f2ece1] flex items-center justify-center p-4 sm:p-6 lg:p-10 font-sans overflow-x-hidden">
+      <main className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch">
+        {/* Left/Center: Architectural Turntable Console */}
+        <div className="lg:col-span-7 flex flex-col">
+          <Turntable
+            currentTrack={currentTrack}
+            isPlaying={isPlaying}
+            loopMode={loopMode}
+            volume={volume}
+            isMuted={isMuted}
+            currentTime={currentTime}
+            duration={duration}
+            onTogglePlay={() => setIsPlaying((prev) => !prev)}
+            onPrevTrack={handlePrevTrack}
+            onNextTrack={handleNextTrack}
+            onToggleLoop={handleToggleLoop}
+            onVolumeChange={setVolume}
+            onToggleMute={() => setIsMuted((prev) => !prev)}
+            onSeek={(target) => setSeekTime(target)}
+          />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Main Video & Controls Column (7 Cols on desktop) */}
-          <div className="lg:col-span-7 flex flex-col gap-4">
-            {/* Embedded YouTube Player */}
-            <YouTubePlayer
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              loopMode={loopMode}
-              volume={volume}
-              isMuted={isMuted}
-              isVideoHidden={isVideoHidden}
-              onTogglePlay={() => setIsPlaying((prev) => !prev)}
-              onToggleVideoHidden={() => setIsVideoHidden((prev) => !prev)}
-              onTrackEnded={handleTrackEnded}
-              onPlayStateChange={setIsPlaying}
-              onTimeUpdate={(curr, dur) => {
-                setCurrentTime(curr);
-                if (dur) setDuration(dur);
-              }}
-              seekTime={seekTime}
-              onSeekHandled={() => setSeekTime(null)}
-            />
+          <YouTubePlayer
+            currentTrack={currentTrack}
+            isPlaying={isPlaying}
+            loopMode={loopMode}
+            volume={volume}
+            isMuted={isMuted}
+            onTrackEnded={handleTrackEnded}
+            onPlayStateChange={setIsPlaying}
+            onTimeUpdate={(curr, dur) => {
+              setCurrentTime(curr);
+              if (dur) setDuration(dur);
+            }}
+            seekTime={seekTime}
+            onSeekHandled={() => setSeekTime(null)}
+          />
+        </div>
 
-            {/* Transport & Scrub Bar Controls */}
-            <PlayerControls
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              loopMode={loopMode}
-              volume={volume}
-              isMuted={isMuted}
-              isVideoHidden={isVideoHidden}
-              currentTime={currentTime}
-              duration={duration}
-              onTogglePlay={() => setIsPlaying(!isPlaying)}
-              onPrevTrack={handlePrevTrack}
-              onNextTrack={handleNextTrack}
-              onToggleLoop={handleToggleLoop}
-              onToggleVideoHidden={() => setIsVideoHidden((prev) => !prev)}
-              onVolumeChange={setVolume}
-              onToggleMute={() => setIsMuted(!isMuted)}
-              onSeek={(target) => setSeekTime(target)}
-            />
-          </div>
-
-          {/* Clean Playlist Column (5 Cols on desktop) */}
-          <div className="lg:col-span-5">
-            <PlaylistManager
-              tracks={tracks}
-              currentTrackId={currentTrack?.id || null}
-              isPlaying={isPlaying}
-              loopMode={loopMode}
-              onSelectTrack={handleSelectTrack}
-              onDeleteTrack={handleDeleteTrack}
-              onAddTrack={handleAddTrack}
-              onToggleLoop={handleToggleLoop}
-            />
-          </div>
+        {/* Right: Record Crate Sleeve Stack */}
+        <div className="lg:col-span-5">
+          <PlaylistManager
+            tracks={tracks}
+            currentTrackId={currentTrack?.id || null}
+            isPlaying={isPlaying}
+            loopMode={loopMode}
+            onSelectTrack={handleSelectTrack}
+            onDeleteTrack={handleDeleteTrack}
+            onAddTrack={handleAddTrack}
+          />
         </div>
       </main>
     </div>

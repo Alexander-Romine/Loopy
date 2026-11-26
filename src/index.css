@@ -3,6 +3,7 @@
 
 @theme {
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Syne', 'Outfit', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 }
 
@@ -12,8 +13,8 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: #141210;
-  color: #f3ede2;
+  background-color: #0e0d0c;
+  color: #f2ece1;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -21,8 +22,8 @@ body {
 }
 
 ::selection {
-  background-color: #e07a38;
-  color: #141210;
+  background-color: #e85d2a;
+  color: #0e0d0c;
 }
 
 @keyframes spin-vinyl {
@@ -35,7 +36,23 @@ body {
 }
 
 .animate-vinyl {
-  animation: spin-vinyl 3.2s linear infinite;
+  animation: spin-vinyl 3s linear infinite;
+}
+
+@keyframes vu-pulse {
+  0%, 100% { transform: scaleY(0.25); }
+  25% { transform: scaleY(0.9); }
+  50% { transform: scaleY(0.45); }
+  75% { transform: scaleY(1); }
+}
+
+.animate-vu-1 { animation: vu-pulse 0.85s ease-in-out infinite; transform-origin: bottom; }
+.animate-vu-2 { animation: vu-pulse 1.15s ease-in-out infinite 0.15s; transform-origin: bottom; }
+.animate-vu-3 { animation: vu-pulse 0.75s ease-in-out infinite 0.3s; transform-origin: bottom; }
+.animate-vu-4 { animation: vu-pulse 1.05s ease-in-out infinite 0.45s; transform-origin: bottom; }
+
+.bg-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
 }
 
 /* Warm analog scrollbar */

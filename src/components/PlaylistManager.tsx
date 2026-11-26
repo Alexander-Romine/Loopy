@@ -6,10 +6,9 @@ import {
   Trash2,
   Plus,
   ExternalLink,
-  Repeat,
   Repeat1,
   AlertCircle,
-  Music,
+  Disc3,
 } from 'lucide-react';
 
 interface PlaylistManagerProps {
@@ -20,7 +19,6 @@ interface PlaylistManagerProps {
   onSelectTrack: (track: LofiTrack) => void;
   onDeleteTrack: (id: string) => void;
   onAddTrack: (track: LofiTrack, playImmediately: boolean) => void;
-  onToggleLoop: () => void;
 }
 
 export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
@@ -31,7 +29,6 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
   onSelectTrack,
   onDeleteTrack,
   onAddTrack,
-  onToggleLoop,
 }) => {
   const [urlInput, setUrlInput] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -49,8 +46,8 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
     const newTrack: LofiTrack = {
       id: `track-${Date.now()}`,
       youtubeId: id,
-      title: 'YouTube Video',
-      artist: 'Custom Stream',
+      title: 'YouTube Track',
+      artist: 'Vinyl Press',
       addedAt: Date.now(),
     };
 
@@ -60,9 +57,27 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
   };
 
   return (
-    <div className="bg-[#1a1714] border border-[#2c2722] rounded-xl p-4 sm:p-5 flex flex-col h-full">
-      {/* 1. Quick Add Video Bar */}
-      <div className="mb-4">
+    <aside
+      aria-label="Record Crate"
+      className="relative flex flex-col rounded-2xl border border-[#2d2925] bg-[#161412] p-5 sm:p-6 h-full min-h-[480px] lg:min-h-[640px]"
+    >
+      {/* Editorial Crate Header */}
+      <div className="flex items-baseline justify-between border-b border-[#272320] pb-4 mb-5">
+        <div>
+          <span className="block text-[10px] font-mono uppercase tracking-[0.22em] text-[#e85d2a]">
+            Side A · Listening Booth
+          </span>
+          <h2 className="font-[var(--font-display)] text-lg font-bold text-[#f2ece1] mt-0.5">
+            Record Crate
+          </h2>
+        </div>
+        <span className="font-mono text-xs text-[#8d8479] tabular-nums">
+          {String(tracks.length).padStart(2, '0')} {tracks.length === 1 ? 'DISC' : 'DISCS'}
+        </span>
+      </div>
+
+      {/* Press New Record Slot */}
+      <div className="mb-5">
         <form onSubmit={handleAddSubmit} className="flex items-center gap-2">
           <input
             type="text"
@@ -71,150 +86,143 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
               setUrlInput(e.target.value);
               if (error) setError(null);
             }}
-            placeholder="Paste YouTube link (e.g. youtu.be/...)"
-            className="flex-1 px-3 py-2 bg-[#141210] border border-[#2c2722] rounded-md text-xs text-[#f3ede2] placeholder-[#736a60] focus:outline-none focus:border-[#e07a38] transition-colors"
+            placeholder="Paste YouTube URL or ID..."
+            className="flex-1 px-3.5 py-2.5 bg-[#0e0d0c] border border-[#2d2925] rounded-md text-xs font-mono text-[#f2ece1] placeholder-[#6e655b] focus:outline-none focus:border-[#e85d2a] transition-colors"
           />
 
           <button
             type="submit"
-            className="flex items-center justify-center w-9 h-9 rounded-md bg-[#e07a38] hover:bg-[#ea8b4d] text-[#141210] transition-colors shrink-0"
-            title="Add & play video"
-            aria-label="Add and play video"
+            className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-md bg-[#e85d2a] hover:bg-[#f06e3e] text-[#12100e] font-mono text-xs font-bold uppercase tracking-wider transition-colors shrink-0"
+            title="Press & spin record"
+            aria-label="Add and play track"
           >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-          </button>
-
-          <button
-            type="button"
-            onClick={onToggleLoop}
-            className={`flex items-center justify-center w-9 h-9 rounded-md transition-colors shrink-0 ${
-              loopMode === 'single'
-                ? 'bg-[#e07a38]/20 text-[#e07a38] border border-[#e07a38]/40'
-                : 'bg-[#141210] text-[#9e9488] border border-[#2c2722] hover:bg-[#25211d]'
-            }`}
-            title={loopMode === 'single' ? 'Loop: Single Video' : 'Loop: All Videos'}
-            aria-label="Toggle loop mode"
-          >
-            {loopMode === 'single' ? (
-              <Repeat1 className="w-4 h-4 stroke-[2.5]" />
-            ) : (
-              <Repeat className="w-4 h-4" />
-            )}
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Press</span>
           </button>
         </form>
 
         {error && (
-          <div className="flex items-center gap-1 text-[11px] text-rose-400 mt-1.5">
-            <AlertCircle className="w-3 h-3" />
+          <div className="flex items-center gap-1.5 text-[11px] text-rose-400 mt-2 font-mono">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
             <span>{error}</span>
           </div>
         )}
       </div>
 
-      {/* 2. Record Crate Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#2c2722] mb-3 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-[#f3ede2]">Record Crate</span>
-          <span className="text-[#9e9488] font-mono tabular-nums">
-            ({tracks.length})
-          </span>
-        </div>
-        <div className="text-[11px] font-mono text-[#c8a258]">
-          {loopMode === 'single' ? 'Looping 1 side' : 'Looping all'}
-        </div>
-      </div>
-
-      {/* 3. Track List or Empty State */}
-      <div className="space-y-2 overflow-y-auto max-h-[460px] flex-1 pr-1">
+      {/* Vinyl Sleeve Stack */}
+      <div className="space-y-2.5 overflow-y-auto flex-1 pr-1 max-h-[430px]">
         {tracks.length === 0 ? (
-          <div className="py-12 px-4 text-center bg-[#141210] rounded-lg border border-dashed border-[#2c2722]">
-            <Music className="w-7 h-7 text-[#736a60] mx-auto mb-2" />
-            <p className="text-xs font-medium text-[#f3ede2]">Crate is empty</p>
-            <p className="text-[11px] text-[#9e9488] mt-0.5">
-              Paste a YouTube link above to press your first record.
+          <div className="py-16 px-4 text-center bg-[#0e0d0c] rounded-xl border border-dashed border-[#2d2925]">
+            <Disc3 className="w-8 h-8 text-[#5e564e] mx-auto mb-3" />
+            <p className="font-[var(--font-display)] text-sm font-semibold text-[#f2ece1]">
+              The crate is empty
+            </p>
+            <p className="text-[11px] font-mono text-[#8d8479] mt-1">
+              Paste a YouTube link above to press your first vinyl.
             </p>
           </div>
         ) : (
-          tracks.map((track) => {
+          tracks.map((track, idx) => {
             const isCurrent = track.id === currentTrackId;
 
             return (
               <div
                 key={track.id}
-                className={`group flex items-center gap-3 p-2 rounded-lg border transition-colors ${
+                className={`group relative flex items-center gap-3 p-2.5 rounded-xl border transition-colors ${
                   isCurrent
-                    ? 'bg-[#e07a38]/10 border-[#e07a38]/40'
-                    : 'bg-[#141210] hover:bg-[#25211d] border-[#2c2722]'
+                    ? 'bg-[#e85d2a]/10 border-[#e85d2a]/45'
+                    : 'bg-[#0e0d0c] hover:bg-[#1d1a17] border-[#272320]'
                 }`}
               >
+                {/* Catalog Number */}
+                <span className="font-mono text-[10px] text-[#6e655b] w-4 text-center shrink-0 tabular-nums">
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+
+                {/* Sleeve Art + Peeking Vinyl Disc */}
                 <button
                   type="button"
                   onClick={() => onSelectTrack(track)}
-                  className="relative w-12 h-10 rounded overflow-hidden shrink-0 cursor-pointer bg-[#0e0c0a] border border-[#2c2722]"
+                  className="relative flex items-center shrink-0 cursor-pointer"
                   aria-label={`Play ${track.title}`}
                 >
-                  <img
-                    src={getYouTubeThumbnail(track.youtubeId)}
-                    alt={track.title}
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div
-                    className={`absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 ${
-                      isCurrent && isPlaying ? 'opacity-100 bg-black/50' : ''
-                    }`}
-                  >
-                    {isCurrent && isPlaying ? (
-                      <div className="flex gap-0.5 items-end h-3">
-                        <div className="w-0.5 h-full bg-[#e07a38] animate-pulse" />
-                        <div className="w-0.5 h-2 bg-[#c8a258] animate-pulse delay-75" />
-                        <div className="w-0.5 h-full bg-[#e07a38] animate-pulse delay-150" />
-                      </div>
-                    ) : (
-                      <Play className="w-3.5 h-3.5 text-[#f3ede2] fill-current opacity-80 group-hover:opacity-100" />
-                    )}
+                  {isCurrent && (
+                    <span
+                      className="absolute -right-2 w-10 h-10 rounded-full bg-[#1a1714] border border-[#3d3731] animate-vinyl"
+                      style={{
+                        animationPlayState: isPlaying ? 'running' : 'paused',
+                      }}
+                    />
+                  )}
+                  <div className="relative z-10 w-11 h-11 rounded-md overflow-hidden bg-[#161412] border border-[#2d2925]">
+                    <img
+                      src={getYouTubeThumbnail(track.youtubeId)}
+                      alt={track.title}
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div
+                      className={`absolute inset-0 flex items-center justify-center bg-black/45 transition-opacity ${
+                        isCurrent && isPlaying
+                          ? 'opacity-100'
+                          : 'opacity-0 group-hover:opacity-100'
+                      }`}
+                    >
+                      {isCurrent && isPlaying ? (
+                        <div className="flex gap-0.5 items-end h-3">
+                          <div className="w-0.5 h-full bg-[#e85d2a] animate-vu-1" />
+                          <div className="w-0.5 h-full bg-[#d4a34b] animate-vu-2" />
+                          <div className="w-0.5 h-full bg-[#e85d2a] animate-vu-3" />
+                        </div>
+                      ) : (
+                        <Play className="w-3.5 h-3.5 text-[#f2ece1] fill-current" />
+                      )}
+                    </div>
                   </div>
                 </button>
 
+                {/* Track Metadata */}
                 <button
                   type="button"
                   onClick={() => onSelectTrack(track)}
-                  className="min-w-0 flex-1 cursor-pointer text-left"
+                  className={`min-w-0 flex-1 cursor-pointer text-left ${isCurrent ? 'pl-1.5' : ''}`}
                 >
                   <div className="flex items-center gap-1.5">
-                    <h4
-                      className={`text-xs font-medium truncate ${
-                        isCurrent ? 'text-[#e07a38] font-semibold' : 'text-[#f3ede2]'
+                    <h3
+                      className={`text-xs font-semibold truncate ${
+                        isCurrent ? 'text-[#e85d2a]' : 'text-[#f2ece1]'
                       }`}
                     >
                       {track.title}
-                    </h4>
+                    </h3>
                     {isCurrent && loopMode === 'single' && (
-                      <Repeat1 className="w-3 h-3 text-[#e07a38] shrink-0" />
+                      <Repeat1 className="w-3 h-3 text-[#e85d2a] shrink-0" />
                     )}
                   </div>
-                  <p className="text-[11px] text-[#9e9488] truncate mt-0.5">
-                    {track.artist}
+                  <p className="text-[11px] font-mono text-[#8d8479] truncate mt-0.5">
+                    {isCurrent && isPlaying ? 'NOW SPINNING' : track.artist}
                   </p>
                 </button>
 
-                <div className="flex items-center gap-1 shrink-0 opacity-70 group-hover:opacity-100">
+                {/* Sleeve Actions */}
+                <div className="flex items-center gap-0.5 shrink-0 opacity-70 group-hover:opacity-100">
                   <a
                     href={`https://www.youtube.com/watch?v=${track.youtubeId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-1.5 text-[#9e9488] hover:text-[#f3ede2] transition-colors"
-                    title="Open video on YouTube"
-                    aria-label="Open video on YouTube"
+                    className="p-1.5 text-[#8d8479] hover:text-[#f2ece1] transition-colors"
+                    title="Open on YouTube"
+                    aria-label="Open on YouTube"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
 
                   <button
+                    type="button"
                     onClick={() => onDeleteTrack(track.id)}
-                    className="p-1.5 text-[#9e9488] hover:text-rose-400 transition-colors"
-                    title="Remove from playlist"
-                    aria-label="Remove from playlist"
+                    className="p-1.5 text-[#8d8479] hover:text-rose-400 transition-colors"
+                    title="Remove from crate"
+                    aria-label="Remove from crate"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -224,6 +232,13 @@ export const PlaylistManager: React.FC<PlaylistManagerProps> = ({
           })
         )}
       </div>
-    </div>
+
+      {/* Subtle Keyboard Legend */}
+      <div className="mt-4 pt-3 border-t border-[#272320] flex items-center justify-between text-[10px] font-mono text-[#6e655b]">
+        <span>SPACE · PLAY/PAUSE</span>
+        <span>L · LOOP</span>
+        <span>←/→ · SKIP</span>
+      </div>
+    </aside>
   );
 };

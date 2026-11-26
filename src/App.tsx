@@ -55,7 +55,7 @@ export default function App() {
   const [theme, setTheme] = useState<ThemeId>(() => {
     try {
       const saved = localStorage.getItem('loopy_theme');
-      if (saved === 'cafe' || saved === 'midnight' || saved === 'botanical') {
+      if (saved === 'cafe' || saved === 'galaxy' || saved === 'jungle') {
         return saved;
       }
     } catch {

@@ -88,13 +88,9 @@ body {
 
 .walnut-grain {
   background-color: #4a2c1a;
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(30, 15, 7, 0.18) 0px,
-    rgba(30, 15, 7, 0.18) 3px,
-    transparent 3px,
-    transparent 14px
-  );
+  background-image: url('/walnut-wood.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 .counter-wood {

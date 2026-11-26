@@ -175,8 +175,8 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
     >
       {/* 1. Station Header + Settings Cog */}
       <div className="flex items-center justify-between border-b border-white/15 pb-3 mb-4">
-        <h1 className="font-[var(--font-display)] text-lg font-bold tracking-tight text-white leading-none">
-          LOOPY CAFE
+        <h1 className="font-[var(--font-display)] text-lg font-extrabold tracking-tight text-white leading-none">
+          LOOPY
         </h1>
         <button
           type="button"
@@ -287,20 +287,14 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
               onClick={onTogglePlay}
               disabled={!hasTrack}
               style={{ backgroundColor: activeTheme.accent }}
-              className="px-3.5 py-2 rounded-lg hover:brightness-110 disabled:opacity-35 disabled:pointer-events-none text-white font-mono text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]"
-              title={isPlaying ? 'Pause' : 'Spin'}
+              className="p-2 rounded-lg hover:brightness-110 disabled:opacity-35 disabled:pointer-events-none text-white flex items-center justify-center transition-all shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]"
+              title={isPlaying ? 'Pause' : 'Play'}
               aria-label={isPlaying ? 'Pause' : 'Play'}
             >
               {isPlaying && hasTrack ? (
-                <>
-                  <Pause className="w-3.5 h-3.5 fill-current" />
-                  <span>Pause</span>
-                </>
+                <Pause className="w-3.5 h-3.5 fill-current" />
               ) : (
-                <>
-                  <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>Spin</span>
-                </>
+                <Play className="w-3.5 h-3.5 fill-current" />
               )}
             </button>
 

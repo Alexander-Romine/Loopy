@@ -105,22 +105,12 @@ body {
 }
 
 .cane-grille {
-  background-color: #c7a97e;
+  background-color: #161514;
   background-image:
-    repeating-linear-gradient(
-      45deg,
-      rgba(62, 38, 22, 0.28) 0px,
-      rgba(62, 38, 22, 0.28) 2px,
-      transparent 2px,
-      transparent 5px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(62, 38, 22, 0.28) 0px,
-      rgba(62, 38, 22, 0.28) 2px,
-      transparent 2px,
-      transparent 5px
-    );
+    radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px),
+    radial-gradient(rgba(0, 0, 0, 0.65) 1px, transparent 1px);
+  background-size: 6px 6px;
+  background-position: 0 0, 3px 3px;
 }
 
 /* Pause GPU animations when tab is hidden */

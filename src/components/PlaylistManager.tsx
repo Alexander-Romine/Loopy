@@ -112,28 +112,9 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
     >
       {/* 1. Liquid Glass Station Header */}
       <div className="flex items-center justify-between border-b border-white/15 pb-3 mb-4">
-        <div className="flex items-center gap-2.5">
-          <span
-            className={`w-2.5 h-2.5 rounded-full ${
-              spinning
-                ? 'bg-[#e86b3a] shadow-[0_0_8px_#e86b3a]'
-                : hasTrack
-                ? 'bg-[#e2b35a]'
-                : 'bg-white/30'
-            }`}
-          />
-          <div>
-            <h1 className="font-[var(--font-display)] text-lg font-extrabold tracking-tight text-white leading-none">
-              LOOPY CAFE
-            </h1>
-            <span className="block text-[9px] font-mono uppercase tracking-[0.18em] text-white/60 mt-1">
-              Espresso &amp; Vinyl Station
-            </span>
-          </div>
-        </div>
-        <span className="text-[11px] font-mono font-semibold text-[#f3d19e] bg-white/10 border border-white/15 px-2.5 py-0.5 rounded-full">
-          {spinning ? '33⅓ RPM' : hasTrack ? 'PAUSED' : 'IDLE'}
-        </span>
+        <h1 className="font-[var(--font-display)] text-lg font-extrabold tracking-tight text-white leading-none">
+          LOOPY CAFE
+        </h1>
       </div>
 
       {/* 2. Now Playing & Frosted Transport */}
@@ -279,8 +260,8 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
         </div>
       </div>
 
-      {/* 3. Press New Record */}
-      <div className="mb-3">
+      {/* 3. Add Track */}
+      <div className="mb-4">
         <form onSubmit={handleAddSubmit} className="flex items-center gap-2">
           <input
             type="text"
@@ -289,18 +270,17 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
               setUrlInput(e.target.value);
               if (error) setError(null);
             }}
-            placeholder="Paste YouTube URL or ID..."
+            placeholder="Paste YouTube link..."
             className="flex-1 px-3 py-2 bg-black/25 border border-white/15 rounded-lg text-xs font-mono text-white placeholder-white/45 focus:outline-none focus:border-[#e86b3a] transition-colors"
           />
 
           <button
             type="submit"
-            className="flex items-center gap-1 px-3 py-2 rounded-lg bg-white/15 hover:bg-white/25 border border-white/20 text-white font-mono text-xs font-semibold uppercase tracking-wider transition-colors shrink-0"
-            title="Press & spin record"
+            className="flex items-center justify-center w-9 h-9 rounded-lg bg-white/15 hover:bg-white/25 border border-white/20 text-white transition-colors shrink-0"
+            title="Add & play track"
             aria-label="Add and play track"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Press</span>
+            <Plus className="w-4 h-4 stroke-[2.5]" />
           </button>
         </form>
 
@@ -312,15 +292,8 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
         )}
       </div>
 
-      {/* 4. Record Crate List */}
-      <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-white/60 mb-2">
-        <span>Record Crate</span>
-        <span>
-          {String(tracks.length).padStart(2, '0')} {tracks.length === 1 ? 'DISC' : 'DISCS'}
-        </span>
-      </div>
-
-      <div className="space-y-2 overflow-y-auto flex-1 pr-1 max-h-[260px]">
+      {/* 4. Track List */}
+      <div className="space-y-2 overflow-y-auto flex-1 pr-1 max-h-[280px]">
         {tracks.length === 0 ? (
           <div className="py-10 px-4 text-center bg-black/20 rounded-xl border border-dashed border-white/20">
             <Disc3 className="w-6 h-6 text-white/50 mx-auto mb-2" />

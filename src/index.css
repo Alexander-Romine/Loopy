@@ -13,8 +13,8 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: #0e0d0c;
-  color: #f2ece1;
+  background-color: #1b120d;
+  color: #f3ece0;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -22,8 +22,8 @@ body {
 }
 
 ::selection {
-  background-color: #e85d2a;
-  color: #0e0d0c;
+  background-color: #c85a32;
+  color: #f3ece0;
 }
 
 @keyframes spin-vinyl {
@@ -37,45 +37,30 @@ body {
 
 .animate-vinyl {
   animation: spin-vinyl 3s linear infinite;
+  will-change: transform;
 }
 
-@keyframes vu-pulse {
-  0%, 100% { transform: scaleY(0.25); }
-  25% { transform: scaleY(0.9); }
-  50% { transform: scaleY(0.45); }
-  75% { transform: scaleY(1); }
+/* Lightweight CSS-only woven cane grille pattern (no SVG filter buffer) */
+.cane-grille {
+  background-color: #c7a97e;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      rgba(62, 38, 22, 0.28) 0px,
+      rgba(62, 38, 22, 0.28) 2px,
+      transparent 2px,
+      transparent 5px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(62, 38, 22, 0.28) 0px,
+      rgba(62, 38, 22, 0.28) 2px,
+      transparent 2px,
+      transparent 5px
+    );
 }
 
-.animate-vu-1 { animation: vu-pulse 0.85s ease-in-out infinite; transform-origin: bottom; }
-.animate-vu-2 { animation: vu-pulse 1.15s ease-in-out infinite 0.15s; transform-origin: bottom; }
-.animate-vu-3 { animation: vu-pulse 0.75s ease-in-out infinite 0.3s; transform-origin: bottom; }
-.animate-vu-4 { animation: vu-pulse 1.05s ease-in-out infinite 0.45s; transform-origin: bottom; }
-
-.bg-grain {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
-}
-
-/* Warm analog scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #141210;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(158, 148, 136, 0.25);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(224, 122, 56, 0.45);
-}
-
-/* Hardware performance optimizations for background tabs:
-   Pauses all GPU paint cycles and CSS animations when tab is inactive */
+/* Pause GPU animations when tab is hidden */
 body.tab-inactive *,
 body.tab-inactive ::before,
 body.tab-inactive ::after {
@@ -87,4 +72,18 @@ body.tab-inactive ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(62, 42, 28, 0.3);
+  border-radius: 3px;
 }

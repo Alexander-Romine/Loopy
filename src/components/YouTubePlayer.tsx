@@ -132,12 +132,20 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
           rel: 0,
           modestbranding: 1,
           playsinline: 1,
+          iv_load_policy: 3,
+          cc_load_policy: 0,
+          disablekb: 1,
+          fs: 0,
+          vq: 'small',
           start: resumeSeconds > 0 ? Math.floor(resumeSeconds) : 0,
           origin: window.location.origin,
         },
         events: {
           onReady: (e: any) => {
             const player = e.target;
+            if (typeof player.setPlaybackQuality === 'function') {
+              player.setPlaybackQuality('small');
+            }
             player.setVolume(isMuted ? 0 : volume);
             if (isPlaying) {
               player.playVideo();
@@ -200,13 +208,19 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
     }
   }, [seekTime, onSeekHandled]);
 
+  const lastSecondRef = useRef<number>(-1);
+
   useEffect(() => {
     const updateProgress = () => {
       if (playerRef.current && typeof playerRef.current.getCurrentTime === 'function') {
         try {
           const current = playerRef.current.getCurrentTime() || 0;
           const dur = playerRef.current.getDuration() || 0;
-          onTimeUpdateRef.current(current, dur);
+          const rounded = Math.floor(current);
+          if (rounded !== lastSecondRef.current) {
+            lastSecondRef.current = rounded;
+            onTimeUpdateRef.current(current, dur);
+          }
 
           if (currentVideoIdRef.current && current > 2) {
             saveProgress(currentVideoIdRef.current, current);
@@ -221,7 +235,7 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
       if (intervalRef.current) window.clearInterval(intervalRef.current);
       if (isPlaying && !document.hidden) {
         updateProgress();
-        intervalRef.current = window.setInterval(updateProgress, 600);
+        intervalRef.current = window.setInterval(updateProgress, 1000);
       }
     };
 

@@ -190,25 +190,21 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0e0d0c] bg-grain text-[#f2ece1] flex items-center justify-center p-4 sm:p-6 lg:p-10 font-sans overflow-x-hidden">
-      <main className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch">
-        {/* Left/Center: Architectural Turntable Console */}
-        <div className="lg:col-span-7 flex flex-col">
+    <div
+      className="min-h-screen text-[#f3ece0] flex items-center justify-center p-4 sm:p-6 lg:p-10 font-sans overflow-x-hidden"
+      style={{
+        backgroundColor: '#1b120d',
+        backgroundImage:
+          'linear-gradient(125deg, #24160f 0%, #1b120d 55%, #2b1710 100%)',
+      }}
+    >
+      <main className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        {/* Left: Clean Walnut Turntable with Large Spinning Disc */}
+        <div className="lg:col-span-7 flex flex-col items-center justify-center">
           <Turntable
             currentTrack={currentTrack}
             isPlaying={isPlaying}
-            loopMode={loopMode}
-            volume={volume}
-            isMuted={isMuted}
-            currentTime={currentTime}
-            duration={duration}
             onTogglePlay={() => setIsPlaying((prev) => !prev)}
-            onPrevTrack={handlePrevTrack}
-            onNextTrack={handleNextTrack}
-            onToggleLoop={handleToggleLoop}
-            onVolumeChange={setVolume}
-            onToggleMute={() => setIsMuted((prev) => !prev)}
-            onSeek={(target) => setSeekTime(target)}
           />
 
           <YouTubePlayer
@@ -228,13 +224,24 @@ export default function App() {
           />
         </div>
 
-        {/* Right: Record Crate Sleeve Stack */}
+        {/* Right: Cream & Walnut Listening Station Console */}
         <div className="lg:col-span-5">
           <PlaylistManager
             tracks={tracks}
-            currentTrackId={currentTrack?.id || null}
+            currentTrack={currentTrack}
             isPlaying={isPlaying}
             loopMode={loopMode}
+            volume={volume}
+            isMuted={isMuted}
+            currentTime={currentTime}
+            duration={duration}
+            onTogglePlay={() => setIsPlaying((prev) => !prev)}
+            onPrevTrack={handlePrevTrack}
+            onNextTrack={handleNextTrack}
+            onToggleLoop={handleToggleLoop}
+            onVolumeChange={setVolume}
+            onToggleMute={() => setIsMuted((prev) => !prev)}
+            onSeek={(target) => setSeekTime(target)}
             onSelectTrack={handleSelectTrack}
             onDeleteTrack={handleDeleteTrack}
             onAddTrack={handleAddTrack}

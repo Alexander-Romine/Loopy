@@ -13,7 +13,7 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: #1b120d;
+  background-color: #2c1b12;
   color: #f3ece0;
   margin: 0;
   padding: 0;
@@ -40,7 +40,74 @@ body {
   will-change: transform;
 }
 
-/* Lightweight CSS-only woven cane grille pattern (no SVG filter buffer) */
+@keyframes steam-rise {
+  0%, 100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateY(-4px);
+  }
+}
+
+.animate-steam {
+  animation: steam-rise 3.5s ease-in-out infinite;
+}
+
+/* Lightweight CSS-only architectural textures (zero SVG filter buffers) */
+.wall-slatted-oak {
+  background-color: #b78d5c;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #c9a272 0px,
+    #c9a272 10px,
+    #8c6239 10px,
+    #8c6239 13px
+  );
+}
+
+.wall-terracotta-brick {
+  background-color: #8b3f2b;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(45, 18, 12, 0.28) 0px,
+      rgba(45, 18, 12, 0.28) 2px,
+      transparent 2px,
+      transparent 24px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(45, 18, 12, 0.18) 0px,
+      rgba(45, 18, 12, 0.18) 2px,
+      transparent 2px,
+      transparent 52px
+    );
+}
+
+.walnut-grain {
+  background-color: #4a2c1a;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(30, 15, 7, 0.18) 0px,
+    rgba(30, 15, 7, 0.18) 3px,
+    transparent 3px,
+    transparent 14px
+  );
+}
+
+.counter-wood {
+  background-color: #362013;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(20, 10, 5, 0.22) 0px,
+    rgba(20, 10, 5, 0.22) 2px,
+    transparent 2px,
+    transparent 28px
+  );
+}
+
 .cane-grille {
   background-color: #c7a97e;
   background-image:

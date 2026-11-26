@@ -108,24 +108,26 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
   return (
     <aside
       aria-label="Listening Station Console"
-      className="flex flex-col rounded-xl border border-[#d6c8b4] bg-[#efe7da] text-[#241912] p-5 sm:p-6 h-full min-h-[540px] shadow-[0_14px_34px_rgba(0,0,0,0.35)]"
+      className="relative flex flex-col rounded-xl border-4 border-[#5c3923] bg-[#efe7da] text-[#241912] p-5 sm:p-6 h-full min-h-[540px] shadow-[0_16px_34px_rgba(0,0,0,0.45)]"
     >
-      {/* 1. Station Header */}
-      <div className="flex items-center justify-between border-b border-[#d6c8b4] pb-3 mb-4">
+      {/* 1. Coffee Shop & Listening Station Header */}
+      <div className="flex items-center justify-between border-b-2 border-[#d6c8b4] pb-3 mb-4">
         <div className="flex items-center gap-2.5">
           <span
             className={`w-2.5 h-2.5 rounded-full ${
               spinning ? 'bg-[#c85a32]' : hasTrack ? 'bg-[#b3863b]' : 'bg-[#b5a795]'
             }`}
           />
-          <h1 className="font-[var(--font-display)] text-lg font-extrabold tracking-tight text-[#241912]">
-            LOOPY
-          </h1>
-          <span className="text-[10px] font-mono uppercase tracking-widest text-[#7a6856] border-l border-[#d6c8b4] pl-2.5">
-            Listening Station
-          </span>
+          <div>
+            <h1 className="font-[var(--font-display)] text-lg font-extrabold tracking-tight text-[#241912] leading-none">
+              LOOPY CAFE
+            </h1>
+            <span className="block text-[9px] font-mono uppercase tracking-[0.18em] text-[#7a6856] mt-1">
+              Espresso &amp; Vinyl Station
+            </span>
+          </div>
         </div>
-        <span className="text-[11px] font-mono font-semibold text-[#9a4626]">
+        <span className="text-[11px] font-mono font-semibold text-[#9a4626] bg-[#e5dac9] border border-[#cfc0aa] px-2 py-0.5 rounded">
           {spinning ? '33⅓ RPM' : hasTrack ? 'PAUSED' : 'IDLE'}
         </span>
       </div>

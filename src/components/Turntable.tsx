@@ -119,78 +119,20 @@ export const Turntable: React.FC<TurntableProps> = ({
             <span className="w-1.5 h-1.5 rounded-full bg-[#11100f]" />
           </div>
 
-          {/* High-Detail Articulated S-Shaped Tonearm */}
+          {/* Real Photorealistic Turntable Tonearm */}
           <div
             aria-hidden="true"
-            className="absolute right-3 sm:right-4 top-4 w-16 h-68 sm:h-76 pointer-events-none origin-[34px_30px] transition-transform duration-500 ease-out"
+            className="absolute right-2 sm:right-3 top-3 w-[74px] sm:w-[86px] pointer-events-none origin-[55%_15%] transition-transform duration-500 ease-out"
             style={{
               transform: spinning ? 'rotate(20deg)' : 'rotate(-4deg)',
             }}
           >
-            <svg viewBox="0 0 64 280" className="w-full h-full overflow-visible">
-              <defs>
-                <linearGradient id="armMetal" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#8d877f" />
-                  <stop offset="45%" stopColor="#e5e0d8" />
-                  <stop offset="100%" stopColor="#6e6860" />
-                </linearGradient>
-                <linearGradient id="gimbalRing" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#46423d" />
-                  <stop offset="100%" stopColor="#171513" />
-                </linearGradient>
-              </defs>
-
-              {/* Main Gimbal Mounting Plate */}
-              <circle cx="34" cy="30" r="20" fill="url(#gimbalRing)" stroke="#524d47" strokeWidth="1.5" />
-              <circle cx="34" cy="30" r="14" fill="#1b1917" stroke="#3c3834" strokeWidth="1.2" />
-              {/* Gimbal Yoke & Bearing Pivot */}
-              <rect x="24" y="21" width="20" height="18" rx="3" fill="#2c2926" stroke="#666059" strokeWidth="1" />
-              <circle cx="34" cy="30" r="5" fill="url(#armMetal)" stroke="#181614" strokeWidth="1" />
-              <circle cx="34" cy="30" r="1.8" fill="#181614" />
-
-              {/* Anti-Skate Dial */}
-              <circle cx="52" cy="44" r="5.5" fill="#22201d" stroke="#5c564f" strokeWidth="1" />
-              <line x1="52" y1="44" x2="55" y2="41" stroke="#c85a32" strokeWidth="1.2" strokeLinecap="round" />
-
-              {/* Graduated Counterweight */}
-              <rect x="25" y="1" width="18" height="14" rx="2.5" fill="url(#armMetal)" stroke="#2b2825" strokeWidth="1" />
-              <line x1="25" y1="5" x2="43" y2="5" stroke="#3a3733" strokeWidth="1" />
-              <line x1="25" y1="10" x2="43" y2="10" stroke="#3a3733" strokeWidth="1" />
-              <rect x="31" y="15" width="6" height="6" fill="#4f4a44" />
-
-              {/* S-Shaped Brushed Metal Arm Tube */}
-              <path
-                d="M 34 39 L 34 112 Q 34 148 22 172 L 15 198"
-                fill="none"
-                stroke="#181614"
-                strokeWidth="7"
-                strokeLinecap="round"
-              />
-              <path
-                d="M 34 39 L 34 112 Q 34 148 22 172 L 15 198"
-                fill="none"
-                stroke="url(#armMetal)"
-                strokeWidth="5"
-                strokeLinecap="round"
-              />
-
-              {/* Locking Collar */}
-              <rect x="12.5" y="194" width="6" height="5" rx="1" transform="rotate(14 15.5 196.5)" fill="#7d776f" stroke="#22201d" strokeWidth="0.8" />
-
-              {/* Detailed Slotted Headshell, Finger Lift & Cartridge */}
-              <g transform="translate(10, 198) rotate(22)">
-                {/* Finger Lift Hook */}
-                <path d="M 10 6 Q 17 6 18 11" fill="none" stroke="#c7c1b7" strokeWidth="1.6" strokeLinecap="round" />
-                {/* Headshell Body */}
-                <rect x="0" y="0" width="11" height="26" rx="2" fill="#1e1c1a" stroke="#6b655e" strokeWidth="1" />
-                {/* Weight-reduction slots */}
-                <rect x="3" y="4" width="5" height="3" rx="0.8" fill="#0d0c0b" />
-                <rect x="3" y="9" width="5" height="3" rx="0.8" fill="#0d0c0b" />
-                {/* Cartridge + Stylus */}
-                <rect x="1.5" y="15" width="8" height="10" rx="1" fill="#322e2a" stroke="#524d47" strokeWidth="0.8" />
-                <circle cx="5.5" cy="23" r="1.6" fill={spinning ? '#e86b3a' : '#736a60'} />
-              </g>
-            </svg>
+            <img
+              src="/tonearm.png"
+              alt=""
+              decoding="async"
+              className="w-full h-auto block select-none"
+            />
           </div>
         </div>
 

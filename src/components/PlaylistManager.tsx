@@ -16,7 +16,6 @@ import {
   ExternalLink,
   AlertCircle,
   Disc3,
-  Settings,
 } from 'lucide-react';
 
 export const THEME_OPTIONS: {
@@ -105,7 +104,6 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
 }) => {
   const [urlInput, setUrlInput] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const progressFillRef = useRef<HTMLDivElement>(null);
   const timeTextRef = useRef<HTMLDivElement>(null);
@@ -173,58 +171,33 @@ export const PlaylistManager: React.FC<ConsolePanelProps> = ({
       style={{ backgroundColor: activeTheme.panelBg }}
       className="relative flex flex-col rounded-2xl border border-white/20 text-[#f7f2ea] p-5 sm:p-6 h-full min-h-[540px] shadow-[0_18px_40px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.28)]"
     >
-      {/* 1. Station Header + Settings Cog */}
+      {/* 1. Station Header + 3 Discrete Theme Dots */}
       <div className="flex items-center justify-between border-b border-white/15 pb-3 mb-4">
         <h1 className="font-[var(--font-display)] text-lg font-extrabold tracking-tight text-white leading-none">
           LOOPY
         </h1>
-        <button
-          type="button"
-          onClick={() => setSettingsOpen((prev) => !prev)}
-          className={`p-1.5 rounded-lg border transition-colors ${
-            settingsOpen
-              ? 'bg-white/20 border-white/30 text-white'
-              : 'bg-white/5 border-white/10 text-white/70 hover:text-white hover:bg-white/15'
-          }`}
-          title="Background & Theme Settings"
-          aria-label="Background and theme settings"
-          aria-expanded={settingsOpen}
-        >
-          <Settings className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Theme Picker Drawer (collapsible) */}
-      {settingsOpen && (
-        <div className="mb-4 rounded-xl bg-black/35 border border-white/15 p-3 space-y-2">
-          <div className="text-[10px] font-mono uppercase tracking-widest text-white/60">
-            Room Theme
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            {THEME_OPTIONS.map((opt) => {
-              const selected = opt.id === theme;
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => onChangeTheme(opt.id)}
-                  className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg border text-[11px] font-medium transition-colors ${
-                    selected
-                      ? 'bg-white/15 border-white/40 text-white'
-                      : 'bg-white/[0.04] border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
-                  <span
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: opt.swatch }}
-                  />
-                  <span className="truncate">{opt.label}</span>
-                </button>
-              );
-            })}
-          </div>
+        <div className="flex items-center gap-2" role="group" aria-label="Room themes">
+          {THEME_OPTIONS.map((opt) => {
+            const selected = opt.id === theme;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => onChangeTheme(opt.id)}
+                title={opt.label}
+                aria-label={opt.label}
+                aria-pressed={selected}
+                style={{ backgroundColor: opt.swatch }}
+                className={`w-3 h-3 rounded-full transition-opacity ${
+                  selected
+                    ? 'ring-1 ring-white/85 ring-offset-2 ring-offset-[#1a120d] opacity-100'
+                    : 'opacity-55 hover:opacity-90'
+                }`}
+              />
+            );
+          })}
         </div>
-      )}
+      </div>
 
       {/* 2. Now Playing & Frosted Transport */}
       <div className="rounded-xl bg-white/[0.08] border border-white/15 p-3.5 mb-4 space-y-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.18)]">
